@@ -1,0 +1,63 @@
+{
+  "private": true,
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@ant-design/cssinjs": "^1.16.1",
+    "@ant-design/icons": "^5.1.4",
+    "@web3auth/base": "8.12.0",
+    "@web3auth/ethereum-provider": "8.12.0",
+    "@web3auth/openlogin-adapter": "8.12.0",
+    "@web3auth/no-modal": "8.12.0",
+    "@segment/analytics-next": "1.72.1",
+    "ai": "^3.2.16",
+    "antd": "^5.0.0",
+    "buffer-builder": "0.2.0",
+    "class-validator": "0.14.1",
+    "class-transformer": "0.5.1",
+    "compare-versions": "6.1.1",
+    "reflect-metadata": "0.2.2",
+    "cluster": "0.7.7",
+    "date-format": "4.0.14",
+    "debug": "4.3.5",
+    "flatted": "3.3.1",
+    "localforage": "1.10.0",
+    "next": "latest",
+    "next-themes": "latest",
+    "rfdc": "1.4.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "streamroller": "3.1.5",
+    "xml2js": "0.6.2",
+    "varint": "6.0.0",
+    "zod": "3.23.8",
+    "axios": "1.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.5",
+    "@types/react": "^18.2.17",
+    "@types/react-dom": "^18.2.7",
+    "@types/xml2js": "0.4.14",
+    "typescript": "^5.1.6",
+    "@tailwindcss/typography": "^0.5.13",
+    "@typescript-eslint/parser": "^7.14.1",
+    "autoprefixer": "^10.4.19",
+    "dotenv": "^16.4.5",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "14.1.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-tailwindcss": "^3.14.0",
+    "postcss": "^8.4.39",
+    "prettier": "^3.3.2",
+    "tailwind-merge": "^2.3.0",
+    "tailwindcss": "^3.4.4",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "browser": {
+    "fs": false,
+    "path": false
+  }
+}
