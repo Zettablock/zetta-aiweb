@@ -15,10 +15,6 @@ jobs:
   build-deploy-staging:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [21.x]
-
     steps:
       - name: Checkout
         uses: actions/checkout@v1
