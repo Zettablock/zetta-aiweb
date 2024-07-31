@@ -2,8 +2,11 @@
   "private": true,
   "scripts": {
     "dev": "next",
-    "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "build:staging": "cross-env NODE_ENV=development next build",
+    "build:prod": "cross-env NODE_ENV=production next build",
+    "export:demo": "cross-env NODE_ENV=development EXPORT=demo next build",
+    "export:dev": "cross-env NODE_ENV=development EXPORT=dev next build"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.16.1",
@@ -20,6 +23,7 @@
     "class-validator": "0.14.1",
     "class-transformer": "0.5.1",
     "compare-versions": "6.1.1",
+    "cross-env": "7.0.3",
     "reflect-metadata": "0.2.2",
     "cluster": "0.7.7",
     "date-format": "4.0.14",

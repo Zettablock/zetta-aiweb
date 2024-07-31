@@ -35,10 +35,10 @@ ENV NEXT_PUBLIC_SEGMENT_WRITE_KEY=${NEXT_PUBLIC_SEGMENT_WRITE_KEY}
 
 # Build Next.js based on the preferred package manager
 RUN \
-    if [ -f yarn.lock ]; then yarn build; \
-    elif [ -f package-lock.json ]; then npm run build; \
-    elif [ -f pnpm-lock.yaml ]; then pnpm build; \
-    else npm run build; \
+    if [ -f yarn.lock ]; then yarn build:prod; \
+    elif [ -f package-lock.json ]; then npm run build:prod; \
+    elif [ -f pnpm-lock.yaml ]; then pnpm build:prod; \
+    else npm run build:prod; \
     fi
 
 # Don't run production as root

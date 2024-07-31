@@ -16,7 +16,7 @@ services:
     container_name: aiweb
     build:
       context: .
-      dockerfile: dev.Dockerfile
+      dockerfile: staging.Dockerfile
 
     # Set environment variables directly in the docker-compose file
     environment:

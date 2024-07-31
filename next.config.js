@@ -1,6 +1,9 @@
+const exportNextConfig = process.env.EXPORT ? { output: 'export' } : {}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-};
+  ...exportNextConfig,
+  reactStrictMode: true
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
