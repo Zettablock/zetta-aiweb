@@ -48,7 +48,7 @@ declare global {
       VERCEL?: string
 
       AI_API_KEY: string
-      AUTH_SECRET: string
+      AUTH_CLIENT_ID: string
 
       KV_URL?: string
       KV_REST_API_URL: string
@@ -56,7 +56,7 @@ declare global {
       KV_REST_API_READ_ONLY_TOKEN?: string
 
       NEXT_PUBLIC_SEGMENT_WRITE_KEY: string
-      APP_VERSION: string
+      NEXT_PUBLIC_APP_VERSION: string
     }
   }
 }
