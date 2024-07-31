@@ -5,7 +5,7 @@ on:
     tags:
       - 'v*'
     branches:
-      - "main"
+      - 'main'
 
 env:
   ECR_REPOSITORY: qugate-aiweb
@@ -30,7 +30,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.GHA_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.GHA_AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: ${{ variables.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr

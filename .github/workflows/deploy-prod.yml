@@ -79,7 +79,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "Visit <https://app.zettablock.com/aiweb/|[Prod Env]> to see the latest UI. Hey <@U032PKCH0NL>, Please check the UI in Prod."
+                    "text": "Visit <https://app.zettablock.com/aiweb/|[Prod Env]> to see the latest UI. Hey <@U0750EURA2V>, Please check the UI in Prod."
                   }
                 }
               ]

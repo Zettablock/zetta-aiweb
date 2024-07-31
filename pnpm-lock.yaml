@@ -26,6 +26,9 @@ importers:
       '@web3auth/no-modal':
         specifier: 8.12.0
         version: 8.12.0(@babel/runtime@7.24.8)(@web3auth/openlogin-adapter@8.12.0(@babel/runtime@7.24.8))
+      '@web3auth/node-sdk':
+        specifier: 3.3.0
+        version: 3.3.0(@babel/runtime@7.24.8)(@types/bn.js@5.1.5)
       '@web3auth/openlogin-adapter':
         specifier: 8.12.0
         version: 8.12.0(@babel/runtime@7.24.8)
@@ -62,6 +65,9 @@ importers:
       flatted:
         specifier: 3.3.1
         version: 3.3.1
+      jsonwebtoken:
+        specifier: 9.0.2
+        version: 9.0.2
       localforage:
         specifier: 1.10.0
         version: 1.10.0
@@ -626,6 +632,23 @@ packages:
     resolution: {integrity: sha512-Z3EINkbsgJx1t6jCDVIJjLSUEGUtNIeDjhMWmeDGOWcP/+v/yQ1hEvd1wfxEz4q5WqIHhevacmPiVxiJ4DljGQ==}
     engines: {node: '>=18.x', npm: '>=9.x'}
 
+  '@toruslabs/fetch-node-details@13.4.0':
+    resolution: {integrity: sha512-WTfI47Q5sldlz4nh8kNPI95PXm3hjm3IEDnYRY3rlcCrs9sVwdQItKf4D0i5s9sRmwLIpG3po+IpEcdO82CIuA==}
+    engines: {node: '>=18.x', npm: '>=9.x'}
+    deprecated: Not supported. Pls upgrade
+    peerDependencies:
+      '@babel/runtime': 7.x
+
+  '@toruslabs/ffjavascript@2.1.0':
+    resolution: {integrity: sha512-zVk/Furvtkd5ulORFPuYHm9A9y8Edt26RNWabhWHiCShghCl3t9ADiVG9c68IAhkZeToKjA2Nxq8CHRRTDSQqQ==}
+    engines: {node: '>=18.x', npm: '>=9.x'}
+
+  '@toruslabs/fnd-base@13.4.0':
+    resolution: {integrity: sha512-Fc3uFj5ZfDmR4uWAMRyLVvBsSLXJWBHQoHOsucVqvxXpNeLSrFEQIxqlXsgjRfQPOSKtpljSl1MaXibhb5/hfA==}
+    engines: {node: '>=18.x', npm: '>=9.x'}
+    peerDependencies:
+      '@babel/runtime': 7.x
+
   '@toruslabs/http-helpers@6.1.1':
     resolution: {integrity: sha512-bJYOaltRzklzObhRdutT1wau17vXyrCCBKJOeN46F1t99MUXi5udQNeErFOcr9qBsvrq2q67eVBkU5XOeBMX5A==}
     engines: {node: '>=18.x', npm: '>=9.x'}
@@ -654,6 +677,13 @@ packages:
     peerDependencies:
       '@babel/runtime': 7.x
 
+  '@toruslabs/openlogin-subkey@8.1.0':
+    resolution: {integrity: sha512-2zi044Hh1vmr9XlYb9wnMrkXAcjNSXQGU1ia0XW0kbK4jZCdNkIj+8mdrIJrzCe4z7kfjhepigSi4Anj3e/pNQ==}
+    engines: {node: '>=18.x', npm: '>=9.x'}
+    peerDependencies:
+      '@babel/runtime': 7.x
+      '@types/bn.js': ^5.1.1
+
   '@toruslabs/openlogin-utils@8.2.1':
     resolution: {integrity: sha512-NSOtj61NZe7w9qbd92cYwMlE/1UwPGtDH02NfUjoEEc3p1yD5U2cLZjdSwsnAgjGNgRqVomXpND4hii12lI/ew==}
     engines: {node: '>=18.x', npm: '>=9.x'}
@@ -671,6 +701,16 @@ packages:
     engines: {node: '>=18.x', npm: '>=9.x'}
     peerDependencies:
       '@babel/runtime': 7.x
+
+  '@toruslabs/torus.js@12.3.7':
+    resolution: {integrity: sha512-PosRhG6stUKmRTUgaucUogXIPfNqeA4UWf/jQ8eU/cxjXjWC9UpPkR0/RbfoOIFfiTxcDgMTHSjt7e48Hwt/vA==}
+    engines: {node: '>=18.x', npm: '>=9.x'}
+    deprecated: Not supported. Pls upgrade
+    peerDependencies:
+      '@babel/runtime': 7.x
+
+  '@types/bn.js@5.1.5':
+    resolution: {integrity: sha512-V46N0zwKRF5Q00AZ6hWtN0T8gGmDUaUzLWQvHFo5yThtVwK/VCenFY3wXVbOvNfajEpsTfQM4IN9k/d6gUVX3A==}
 
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
@@ -829,6 +869,10 @@ packages:
         optional: true
       '@web3auth/wallet-connect-v2-adapter':
         optional: true
+
+  '@web3auth/node-sdk@3.3.0':
+    resolution: {integrity: sha512-vsAZZh2FxB1d6zBwcPdyiXgNBMTFH9DrW/O2sms8WNCG6nh/GKdIFkW5Wm/5LoTGmrFyqNJdF3AQZg6qWVcTEg==}
+    engines: {node: '>=18.x', npm: '>=9.x'}
 
   '@web3auth/openlogin-adapter@8.12.0':
     resolution: {integrity: sha512-PEYdPQ2YOHxw0T7c14aZNtlhEYP/2eMXfquD0sZoKCZ5d87kOHEPY6tBoGXkWNa1X1VJJeSLRsyT8h1P55zuPQ==}
@@ -1034,6 +1078,9 @@ packages:
 
   buffer-builder@0.2.0:
     resolution: {integrity: sha512-7VPMEPuYznPSoR21NE1zvd2Xna6c/CloiZCfcMXR1Jny6PjX0N4Nsa38zcBFo/FMK+BlA+FLKbJCQ0i2yxp+Xg==}
+
+  buffer-equal-constant-time@1.0.1:
+    resolution: {integrity: sha512-zRpUiDwd/xk6ADqPMATG8vc9VPrkck7T07OIx0gnjmJAnHnTVXNQG3vfvWNuiZIkwu9KrKdA1iJKfsfTVxE6NA==}
 
   buffer@6.0.3:
     resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
@@ -1242,6 +1289,9 @@ packages:
 
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
+
+  ecdsa-sig-formatter@1.0.11:
+    resolution: {integrity: sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ==}
 
   electron-to-chromium@1.4.832:
     resolution: {integrity: sha512-cTen3SB0H2SGU7x467NRe1eVcQgcuS6jckKfWJHia2eo0cHIGOqHoAxevIYZD4eRHcWjkvFzo93bi3vJ9W+1lA==}
@@ -1861,9 +1911,19 @@ packages:
   jsonschema@1.4.1:
     resolution: {integrity: sha512-S6cATIPVv1z0IlxdN+zUk5EPjkGCdnhN4wVSBlvoUO1tOLJootbo9CquNJmbIh4yikWHiUedhRYrNPn1arpEmQ==}
 
+  jsonwebtoken@9.0.2:
+    resolution: {integrity: sha512-PRp66vJ865SSqOlgqS8hujT5U4AOgMfhrwYIuIhfKaoSCZcirrmASQr8CX7cUg+RMih+hgznrjp99o+W4pJLHQ==}
+    engines: {node: '>=12', npm: '>=6'}
+
   jsx-ast-utils@3.3.5:
     resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ==}
     engines: {node: '>=4.0'}
+
+  jwa@1.4.1:
+    resolution: {integrity: sha512-qiLX/xhEEFKUAJ6FiBMbes3w9ATzyk5W7Hvzpa/SLYdxNtng+gcurvrI7TbACjIXlsJyr05/S1oUhZrc63evQA==}
+
+  jws@3.2.2:
+    resolution: {integrity: sha512-YHlZCB6lMTllWDtSPHz/ZXTsi8S00usEV6v1tjq8tOUZzw7DpSDWVXjXDre6ed1w/pd495ODpHZYSdkRTsa0HA==}
 
   jwt-decode@4.0.0:
     resolution: {integrity: sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==}
@@ -1916,11 +1976,29 @@ packages:
   lodash.clonedeep@4.5.0:
     resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
 
+  lodash.includes@4.3.0:
+    resolution: {integrity: sha512-W3Bx6mdkRTGtlJISOvVD/lbqjTlPPUDTMnlXZFnVwi9NKJ6tiAk6LVdlhZMm17VZisqhKcgzpO5Wz91PCt5b0w==}
+
+  lodash.isboolean@3.0.3:
+    resolution: {integrity: sha512-Bz5mupy2SVbPHURB98VAcw+aHh4vRV5IPNhILUCsOzRmsTmSQ17jIuqopAentWoehktxGd9e/hbIXq980/1QJg==}
+
+  lodash.isinteger@4.0.4:
+    resolution: {integrity: sha512-DBwtEWN2caHQ9/imiNeEA5ys1JoRtRfY3d7V9wkqtbycnAmTvRRmbHKDV4a0EYc678/dia0jrte4tjYwVBaZUA==}
+
+  lodash.isnumber@3.0.3:
+    resolution: {integrity: sha512-QYqzpfwO3/CWf3XP+Z+tkQsfaLL/EnUlXWVkIk5FUPc4sBdTehEqZONuyRt2P67PXAk+NXmTBcc97zw9t1FQrw==}
+
   lodash.isplainobject@4.0.6:
     resolution: {integrity: sha512-oSXzaWypCMHkPC3NvBEaPHf0KsA5mvPrOPgQWDsbg8n7orZ290M0BmC/jgRZ4vcJ6DTAhjrsSYgdsW/F+MFOBA==}
 
+  lodash.isstring@4.0.1:
+    resolution: {integrity: sha512-0wJxfxH1wgO3GrbuP+dTTk7op+6L41QCXbGINEmD+ny/G/eCqGzxyCsh7159S+mgDDcoarnBw6PC1PS5+wUGgw==}
+
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
+
+  lodash.once@4.1.1:
+    resolution: {integrity: sha512-Sb487aTOCr9drQVL8pIxOzVhafOjZN9UU54hiN8PU3uAiSV7lx1yYNpbNmex2PK6dSJoNTSJUUswT651yww3Mg==}
 
   log@6.3.1:
     resolution: {integrity: sha512-McG47rJEWOkXTDioZzQNydAVvZNeEkSyLJ1VWkFwfW+o1knW+QSi8D1KjPn/TnctV+q99lkvJNe1f0E1IjfY2A==}
@@ -3549,6 +3627,23 @@ snapshots:
     dependencies:
       elliptic: 6.5.6
 
+  '@toruslabs/fetch-node-details@13.4.0(@babel/runtime@7.24.8)':
+    dependencies:
+      '@babel/runtime': 7.24.8
+      '@toruslabs/constants': 13.4.0(@babel/runtime@7.24.8)
+      '@toruslabs/fnd-base': 13.4.0(@babel/runtime@7.24.8)
+      '@toruslabs/http-helpers': 6.1.1(@babel/runtime@7.24.8)
+      loglevel: 1.9.1
+    transitivePeerDependencies:
+      - '@sentry/types'
+
+  '@toruslabs/ffjavascript@2.1.0': {}
+
+  '@toruslabs/fnd-base@13.4.0(@babel/runtime@7.24.8)':
+    dependencies:
+      '@babel/runtime': 7.24.8
+      '@toruslabs/constants': 13.4.0(@babel/runtime@7.24.8)
+
   '@toruslabs/http-helpers@6.1.1(@babel/runtime@7.24.8)':
     dependencies:
       '@babel/runtime': 7.24.8
@@ -3585,6 +3680,16 @@ snapshots:
       '@toruslabs/base-session-manager': 3.1.1(@babel/runtime@7.24.8)
       '@toruslabs/eccrypto': 4.0.0
       '@toruslabs/metadata-helpers': 5.1.0(@babel/runtime@7.24.8)
+    transitivePeerDependencies:
+      - '@sentry/types'
+
+  '@toruslabs/openlogin-subkey@8.1.0(@babel/runtime@7.24.8)(@types/bn.js@5.1.5)':
+    dependencies:
+      '@babel/runtime': 7.24.8
+      '@toruslabs/ffjavascript': 2.1.0
+      '@toruslabs/metadata-helpers': 5.1.0(@babel/runtime@7.24.8)
+      '@types/bn.js': 5.1.5
+      bn.js: 5.2.1
     transitivePeerDependencies:
       - '@sentry/types'
 
@@ -3627,6 +3732,24 @@ snapshots:
       - bufferutil
       - supports-color
       - utf-8-validate
+
+  '@toruslabs/torus.js@12.3.7(@babel/runtime@7.24.8)':
+    dependencies:
+      '@babel/runtime': 7.24.8
+      '@toruslabs/constants': 13.4.0(@babel/runtime@7.24.8)
+      '@toruslabs/eccrypto': 4.0.0
+      '@toruslabs/http-helpers': 6.1.1(@babel/runtime@7.24.8)
+      bn.js: 5.2.1
+      elliptic: 6.5.6
+      ethereum-cryptography: 2.2.1
+      json-stable-stringify: 1.1.1
+      loglevel: 1.9.1
+    transitivePeerDependencies:
+      - '@sentry/types'
+
+  '@types/bn.js@5.1.5':
+    dependencies:
+      '@types/node': 20.14.11
 
   '@types/debug@4.1.12':
     dependencies:
@@ -3865,6 +3988,22 @@ snapshots:
       '@web3auth/openlogin-adapter': 8.12.0(@babel/runtime@7.24.8)
     transitivePeerDependencies:
       - '@sentry/types'
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+
+  '@web3auth/node-sdk@3.3.0(@babel/runtime@7.24.8)(@types/bn.js@5.1.5)':
+    dependencies:
+      '@toruslabs/constants': 13.4.0(@babel/runtime@7.24.8)
+      '@toruslabs/fetch-node-details': 13.4.0(@babel/runtime@7.24.8)
+      '@toruslabs/openlogin-subkey': 8.1.0(@babel/runtime@7.24.8)(@types/bn.js@5.1.5)
+      '@toruslabs/torus.js': 12.3.7(@babel/runtime@7.24.8)
+      '@web3auth/base': 8.12.0(@babel/runtime@7.24.8)
+      '@web3auth/base-provider': 8.12.0(@babel/runtime@7.24.8)
+    transitivePeerDependencies:
+      - '@babel/runtime'
+      - '@sentry/types'
+      - '@types/bn.js'
       - bufferutil
       - supports-color
       - utf-8-validate
@@ -4166,6 +4305,8 @@ snapshots:
 
   buffer-builder@0.2.0: {}
 
+  buffer-equal-constant-time@1.0.1: {}
+
   buffer@6.0.3:
     dependencies:
       base64-js: 1.5.1
@@ -4386,6 +4527,10 @@ snapshots:
       es5-ext: 0.10.64
 
   eastasianwidth@0.2.0: {}
+
+  ecdsa-sig-formatter@1.0.11:
+    dependencies:
+      safe-buffer: 5.2.1
 
   electron-to-chromium@1.4.832: {}
 
@@ -5210,12 +5355,36 @@ snapshots:
 
   jsonschema@1.4.1: {}
 
+  jsonwebtoken@9.0.2:
+    dependencies:
+      jws: 3.2.2
+      lodash.includes: 4.3.0
+      lodash.isboolean: 3.0.3
+      lodash.isinteger: 4.0.4
+      lodash.isnumber: 3.0.3
+      lodash.isplainobject: 4.0.6
+      lodash.isstring: 4.0.1
+      lodash.once: 4.1.1
+      ms: 2.1.3
+      semver: 7.6.3
+
   jsx-ast-utils@3.3.5:
     dependencies:
       array-includes: 3.1.8
       array.prototype.flat: 1.3.2
       object.assign: 4.1.5
       object.values: 1.2.0
+
+  jwa@1.4.1:
+    dependencies:
+      buffer-equal-constant-time: 1.0.1
+      ecdsa-sig-formatter: 1.0.11
+      safe-buffer: 5.2.1
+
+  jws@3.2.2:
+    dependencies:
+      jwa: 1.4.1
+      safe-buffer: 5.2.1
 
   jwt-decode@4.0.0: {}
 
@@ -5260,9 +5429,21 @@ snapshots:
 
   lodash.clonedeep@4.5.0: {}
 
+  lodash.includes@4.3.0: {}
+
+  lodash.isboolean@3.0.3: {}
+
+  lodash.isinteger@4.0.4: {}
+
+  lodash.isnumber@3.0.3: {}
+
   lodash.isplainobject@4.0.6: {}
 
+  lodash.isstring@4.0.1: {}
+
   lodash.merge@4.6.2: {}
+
+  lodash.once@4.1.1: {}
 
   log@6.3.1:
     dependencies:

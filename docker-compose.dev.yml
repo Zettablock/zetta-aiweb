@@ -4,17 +4,40 @@ services:
     image: redis
     ports:
       - '6379:6379'
-  serverless-redis-http:
+  serverless-redis-http: # https://github.com/hiett/serverless-redis-http/tree/master
     ports:
       - '8079:80'
     image: hiett/serverless-redis-http:latest
     environment:
       SRH_MODE: env
-      SRH_TOKEN: example_token
+      SRH_TOKEN: ${KV_REST_API_TOKEN}
       SRH_CONNECTION_STRING: 'redis://redis:6379' # Using `redis` hostname since they're in the same Docker network.
-  app:
-    container_name: app-prod
-    image: app-prod
+  aiweb:
+    container_name: aiweb
     build:
       context: .
-      target: production
+      dockerfile: dev.Dockerfile
+
+    # Set environment variables directly in the docker-compose file
+    environment:
+      AI_API_KEY: ${AI_API_KEY}
+      AUTH_CLIENT_ID: ${AUTH_CLIENT_ID}
+      KV_REST_API_URL: ${KV_REST_API_URL}
+      KV_REST_API_TOKEN: ${KV_REST_API_TOKEN}
+      NEXT_PUBLIC_SEGMENT_WRITE_KEY: ${NEXT_PUBLIC_SEGMENT_WRITE_KEY}
+    # Set environment variables based on the .env file
+    # env_file:
+      # - .env
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - aiweb_network
+
+networks:
+  aiweb_network:
+    external: true
