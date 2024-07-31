@@ -30,11 +30,11 @@ jobs:
       - name: DEV Build
         working-directory: .
         env:
-          AI_API_KEY: ${{ variables.DEV_AI_API_KEY }}
-          AUTH_CLIENT_ID: ${{ variables.DEV_AUTH_CLIENT_ID }}
-          KV_REST_API_URL: ${{ variables.DEV_KV_REST_API_URL }}
-          KV_REST_API_TOKEN: ${{ variables.DEV_KV_REST_API_TOKEN }}
-          NEXT_PUBLIC_SEGMENT_WRITE_KEY: ${{ variables.DEV_SEGMENT_WRITE_KEY }}
+          AI_API_KEY: ${{ vars.DEV_AI_API_KEY }}
+          AUTH_CLIENT_ID: ${{ vars.DEV_AUTH_CLIENT_ID }}
+          KV_REST_API_URL: ${{ vars.DEV_KV_REST_API_URL }}
+          KV_REST_API_TOKEN: ${{ vars.DEV_KV_REST_API_TOKEN }}
+          NEXT_PUBLIC_SEGMENT_WRITE_KEY: ${{ vars.DEV_SEGMENT_WRITE_KEY }}
         run: |
           pnpm export:dev
           mkdir -p ./build/aiweb
@@ -43,16 +43,16 @@ jobs:
         uses: jakejarvis/s3-sync-action@master
         env:
           # https://github.com/Zettablock/zetta-webcode/settings/variables/actions
-          AWS_S3_BUCKET: ${{ variables.AWS_BUCKET_NAME_DEV }}
-          AWS_ACCESS_KEY_ID: ${{ variables.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ variables.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ variables.AWS_REGION }}
+          AWS_S3_BUCKET: ${{ vars.AWS_BUCKET_NAME_DEV }}
+          AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ vars.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
           SOURCE_DIR: './build'
       - name: Invalidate CloudFront
         uses: chetan/invalidate-cloudfront-action@v2
         env:
-          DISTRIBUTION: ${{ variables.AWS_DISTRIBUTION_ID_DEV }}
+          DISTRIBUTION: ${{ vars.AWS_DISTRIBUTION_ID_DEV }}
           PATHS: '/*'
-          AWS_REGION: ${{ variables.AWS_REGION }}
-          AWS_ACCESS_KEY_ID: ${{ variables.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ variables.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ vars.AWS_SECRET_ACCESS_KEY }}
