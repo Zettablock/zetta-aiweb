@@ -12,17 +12,22 @@ jobs:
     strategy:
       matrix:
         node-version: [21.x]
+        pnpm-version: [6.x]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v1
         with:
           fetch-depth: 0
-
+      - name: Use Pnpm ${{ matrix.pnpm-version }}
+        uses: pnpm/action-setup@v2
+        with:
+          node-version: ${{ matrix.pnpm-version }}
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
       - name: Pnpm Install
         working-directory: .
         run: |
