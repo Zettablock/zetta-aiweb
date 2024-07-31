@@ -38,7 +38,7 @@ export function getCommonIdentify(config: IdentifyConfig) {
     app_type: config.appType,
     device: config.device || generateRandomStr(),
     env: config.env,
-    version: config.version || process.env.APP_VERSION,
+    version: config.version,
     ...(isClient
       ? {
           userAgent: window.navigator.userAgent,
