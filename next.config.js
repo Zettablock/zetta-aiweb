@@ -1,4 +1,4 @@
-const exportNextConfig = process.env.EXPORT ? { output: 'export' } : {}
+const exportNextConfig = process.env.EXPORT ? { output: 'export', basePath: '/aiweb' } : {}
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
