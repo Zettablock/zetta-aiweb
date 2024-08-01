@@ -91,7 +91,9 @@ export function isMecoWebView(ua: string) {
 }
 
 export function isWebBundle() {
-  return process.env.BROWSER && window.location.protocol === 'amcomponent:'
+  return (
+    typeof window !== 'undefined' && window.location.protocol === 'amcomponent:'
+  )
 }
 
 export function getPlatformByUa(ua = '') {
@@ -156,7 +158,10 @@ export function getSystemVersion(ua = '') {
 }
 
 export function unifyUa(ua = '') {
-  return (!ua && process.env.BROWSER ? window.navigator.userAgent : ua) || ''
+  return (
+    (!ua && typeof window !== 'undefined' ? window.navigator.userAgent : ua) ||
+    ''
+  )
 }
 
 export function isMobilePlatform(ua = '') {

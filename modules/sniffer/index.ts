@@ -35,13 +35,8 @@ export function getPlatform(ua = '') {
 }
 
 export function getCurrentPlatform() {
-  if (!process.env.BROWSER) {
-    console.warn(
-      '[] [] [] [] [platform] [] [] [',
-      new Error(`getCurrentPlatform can't be called on the server side`),
-      '][] [] [] []'
-    ) // eslint-disable-line no-console
-    return
+  if (typeof window === 'undefined') {
+    return {}
   }
   const currentUA = window.navigator.userAgent
   return getPlatform(currentUA)

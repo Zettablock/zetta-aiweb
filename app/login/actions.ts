@@ -1,4 +1,4 @@
-// 'use server'
+'use server'
 
 // import { signIn } from '@/auth'
 // import { User } from '@/lib/types'
@@ -69,3 +69,5 @@
 //     }
 //   }
 // }
+
+export async function signIn() {}

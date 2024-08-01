@@ -35,9 +35,9 @@ export const getHttpClient = (
     const pluginModule = pluginsConfig[key]
     if (pluginModule.enable !== false) {
       if (pluginModule.Provider) {
-        plugins.push(new pluginModule.Provider(pluginModule.options))
+        plugins.push(new pluginModule.Provider(pluginModule.options ?? {}))
       } else if ((Plugins as any)[key]) {
-        plugins.push(new (Plugins as any)[key](pluginModule.options))
+        plugins.push(new (Plugins as any)[key](pluginModule.options ?? {}))
       }
     }
   })

@@ -9,14 +9,14 @@ export class ErrorResponsePlugin extends ResponsePlugin {
   constructor(
     public options: AxiosInterceptorOptions & {
       errorValidator?: typeof defaultErrorValidator
-      errorHandler?: (error: AxiosError) => any
+      errorHandler?: (error: AxiosError) => never
     }
   ) {
     options.errorValidator = options.errorValidator || defaultErrorValidator
     super(options)
   }
 
-  public handle<V extends AxiosResponse = AxiosResponse>(response: V) {
+  public handle = <V extends AxiosResponse = AxiosResponse>(response: V) => {
     const { data, config, request } = response
     const errorValidator =
       (config as any).errorValidator || this.options.errorValidator
@@ -41,7 +41,7 @@ export class ErrorResponsePlugin extends ResponsePlugin {
     return response
   }
 
-  public handleError(error: AxiosError<any, any>) {
+  public handleError = (error: AxiosError<any, any>) => {
     if (!(error instanceof AxiosError)) {
       throw new AxiosError((error as any).message, 'response_proccess_error')
     }

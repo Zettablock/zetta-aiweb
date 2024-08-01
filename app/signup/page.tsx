@@ -1,12 +1,20 @@
 import { auth } from '@/auth'
+import Auth from '@/views/Auth'
 import { redirect } from 'next/navigation'
+import { signup } from './actions'
 
-export default async function SignupPage() {
-  const user = await auth()
+export const dynamic = process.env.EXPORT ? 'force-static' : 'auto'
+
+export default async function SignupPage({ searchParams }: any) {
+  const user = await auth(searchParams.code)
 
   if (user) {
     redirect('/')
   }
 
-  return <main className="flex flex-col p-4">signup</main>
+  return (
+    <main>
+      <Auth action={signup} actionType="Register" />
+    </main>
+  )
 }

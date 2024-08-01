@@ -18,6 +18,8 @@ RUN \
 
 # Environment variables must be present at build time
 # https://github.com/vercel/next.js/discussions/14030
+ARG WEB_ORIGIN
+ENV WEB_ORIGIN=${WEB_ORIGIN}
 ARG AI_API_KEY
 ENV AI_API_KEY=${AI_API_KEY}
 ARG AUTH_CLIENT_ID
@@ -28,6 +30,8 @@ ARG KV_REST_API_TOKEN
 ENV KV_REST_API_TOKEN=${KV_REST_API_TOKEN}
 ARG NEXT_PUBLIC_SEGMENT_WRITE_KEY
 ENV NEXT_PUBLIC_SEGMENT_WRITE_KEY=${NEXT_PUBLIC_SEGMENT_WRITE_KEY}
+ARG NEXT_PUBLIC_BASTPATH
+ENV NEXT_PUBLIC_BASTPATH=${NEXT_PUBLIC_BASTPATH}
 
 # Next.js collects completely anonymous telemetry data about general usage. Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line to disable telemetry at build time
