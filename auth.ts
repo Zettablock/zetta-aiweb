@@ -5,10 +5,13 @@ import { authConfig } from './auth.config'
 // import { z } from 'zod'
 // TODO
 // import { getUser } from './app/login/actions'
+// import jwt from 'jsonwebtoken'
 import {
   LOGIN_PROVIDER_TYPE,
-  OpenloginAdapter
+  OpenloginAdapter,
+  OpenloginUserInfo
 } from '@web3auth/openlogin-adapter'
+import { httpClient } from '@/modules/http-client'
 
 const debug = createDebug('App-Auth')
 let web3auth: Web3AuthNoModal | null = null
@@ -39,9 +42,79 @@ export const signIn = async () => {
   })
 }
 
-export const auth = async () => {
-  if (web3auth?.connected) {
-    return await web3auth.getUserInfo()
+const exchangeCodeForAccessToken = async (code: string) => {
+  try {
+    const { data } = await httpClient.post(
+      'https://github.com/login/oauth/access_token',
+      {
+        client_id: process.env.GITHUB_CLIENT_ID,
+        client_secret: process.env.GITHUB_CLIENT_SECRET,
+        code: code
+      },
+      {
+        headers: { Accept: 'application/json' }
+      }
+    )
+    console.log(data)
+    return data.access_token
+  } catch (error) {
+    console.error('Error exchanging code for access token:', error)
+    throw new Error('Error during GitHub authentication')
   }
-  return null
+}
+
+const fetchGitHubUserDetails = async (accessToken: string) => {
+  try {
+    const { data } = await httpClient.get('https://api.github.com/user', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
+    return data
+  } catch (error) {
+    console.error('Error fetching GitHub user details:', error)
+    throw new Error('Failed to fetch user details')
+  }
+}
+
+interface GithubUser {
+  id: string
+  login: string
+  avatar_url: string
+  name?: string
+  email?: string
+}
+
+export const auth = async (
+  githubCode: string | null,
+  web3authCode?: string | null
+): Promise<Partial<OpenloginUserInfo> | null> => {
+  try {
+    if (!githubCode) return null
+
+    const accessToken = await exchangeCodeForAccessToken(githubCode)
+    const userData: GithubUser = await fetchGitHubUserDetails(accessToken)
+    if (typeof web3authCode === 'undefined') {
+      return {
+        idToken: userData.id,
+        profileImage: userData.avatar_url,
+        name: userData.login || userData.name,
+        email: userData.email
+      }
+    } else if (web3auth?.connected) {
+      return await web3auth.getUserInfo()
+    }
+    return null
+  } catch (error) {
+    console.error(error)
+    return null
+  }
+}
+
+export const getOauthUrl = () => {
+  const origin =
+    typeof window === 'undefined'
+      ? process.env.WEB_ORIGIN
+      : window.location.origin
+  return `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${origin}${process.env.NEXT_PUBLIC_BASEPATH}/login`
 }

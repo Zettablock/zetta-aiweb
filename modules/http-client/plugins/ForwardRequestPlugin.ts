@@ -12,7 +12,7 @@ export class ForwardRequestPlugin extends RequestPlugin {
     super(options)
   }
 
-  public handle<V extends AxiosRequestConfig>(value: V) {
+  public handle = <V extends AxiosRequestConfig>(value: V) => {
     if (this.options.forwardQuery) {
       value.params = {
         ...value.params,

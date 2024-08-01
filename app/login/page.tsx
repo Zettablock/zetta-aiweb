@@ -1,18 +1,19 @@
 import { auth, signIn } from '@/auth'
 import { redirect } from 'next/navigation'
-import { Login } from './Login'
+import Auth from '@/views/Auth'
 
-export default async function LoginPage() {
-  const user = await auth()
+export const dynamic = process.env.EXPORT ? 'force-static' : 'auto'
 
-  console.error(user)
+export default async function LoginPage({ searchParams }: any) {
+  const user = await auth(searchParams.code)
+
   if (user) {
-    redirect('/')
+    redirect(process.env.NEXT_PUBLIC_BASEPATH || '/')
   }
 
   return (
     <main>
-      <Login />
+      <Auth action={signIn} actionType="Login" />
     </main>
   )
 }

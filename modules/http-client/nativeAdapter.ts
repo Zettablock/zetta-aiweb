@@ -5,13 +5,13 @@ import {
   InternalAxiosRequestConfig
 } from 'axios'
 // @ts-ignore
-import settle from 'axios/lib/core/settle'
+import settle from 'axios/unsafe/core/settle'
 // @ts-ignore
-import resolveConfig from 'axios/lib/helpers/resolveConfig'
+import resolveConfig from 'axios/unsafe/helpers/resolveConfig'
 // @ts-ignore
-import utils from 'axios/lib/utils'
+import utils from 'axios/unsafe/utils'
 // @ts-ignore
-import composeSignals from 'axios/lib/composeSignals'
+import composeSignals from 'axios/unsafe/helpers/composeSignals'
 
 const resolvers = {} as any
 

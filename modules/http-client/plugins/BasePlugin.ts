@@ -1,5 +1,4 @@
 import {
-  Axios,
   AxiosError,
   AxiosInterceptorOptions,
   AxiosRequestConfig,
@@ -13,31 +12,31 @@ export interface IBasePlugin {
 export class BasePlugin {
   constructor(public options: AxiosInterceptorOptions) {}
 
-  public handle(value: any): any | Promise<any> {
+  public handle = (value: any): any | Promise<any> => {
     return value
   }
 
-  public handleError(error: any): any {
+  public handleError = (error: any) => {
     throw error
   }
 }
 
 export class RequestPlugin extends BasePlugin {
-  public handle<V extends AxiosRequestConfig>(value: V): V | Promise<V> {
+  public handle = <V extends AxiosRequestConfig>(value: V): V | Promise<V> => {
     return value
   }
-  public handleError(error: Error) {
+  public handleError = (error: Error) => {
     throw error
   }
 }
 
 export class ResponsePlugin extends BasePlugin {
-  public handle<V extends AxiosResponse = AxiosResponse>(
+  public handle = <V extends AxiosResponse = AxiosResponse>(
     value: V
-  ): V | Promise<V> {
+  ): V | Promise<V> => {
     return value
   }
-  public handleError(error: AxiosError) {
+  public handleError = (error: AxiosError<any, any>) => {
     throw error
   }
 }

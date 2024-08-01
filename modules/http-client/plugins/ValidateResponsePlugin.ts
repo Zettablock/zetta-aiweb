@@ -22,7 +22,7 @@ const logAllError = (url = '', errorList: ValidationError[]) => {
 }
 
 export class ValidateResponsePlugin extends ResponsePlugin {
-  public handle<V extends AxiosResponse = AxiosResponse>(response: V) {
+  public handle = <V extends AxiosResponse = AxiosResponse>(response: V) => {
     const { data, config, request } = response
     const { dto, skipCheck } = config as any
     if (dto && skipCheck !== true) {

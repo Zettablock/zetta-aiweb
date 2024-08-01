@@ -18,11 +18,13 @@ services:
       context: .
       dockerfile: prod.Dockerfile
       args:
+        WEB_ORIGIN: ${WEB_ORIGIN}
         AI_API_KEY: ${AI_API_KEY}
         AUTH_CLIENT_ID: ${AUTH_CLIENT_ID}
         KV_REST_API_URL: ${KV_REST_API_URL}
         KV_REST_API_TOKEN: ${KV_REST_API_TOKEN}
         NEXT_PUBLIC_SEGMENT_WRITE_KEY: ${NEXT_PUBLIC_SEGMENT_WRITE_KEY}
+        NEXT_PUBLIC_BASEPATH: ${NEXT_PUBLIC_BASEPATH}
     restart: always
     ports:
       - 80:80
