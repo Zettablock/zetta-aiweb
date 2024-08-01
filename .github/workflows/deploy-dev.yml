@@ -43,7 +43,7 @@ jobs:
         run: |
           pnpm export:dev
           mkdir -p ./build/aiweb
-          mv ./out ./build/aiweb
+          mv -r ./out ./build/aiweb
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@master
         env:
