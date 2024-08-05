@@ -1,8 +1,6 @@
 name: PROD deploy
 on:
   push:
-    tags:
-      - 'v*'
     branches: ['gh-release']
     paths: ['./**']
     workflow_dispatch:
