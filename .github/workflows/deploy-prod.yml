@@ -34,13 +34,13 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         env:
-          WEB_ORIGIN: ${{ vars.WEB_ORIGIN_PROD }}
           AI_API_KEY: ${{ vars.DEV_AI_API_KEY }}
           AUTH_CLIENT_ID: ${{ vars.DEV_AUTH_CLIENT_ID }}
           KV_REST_API_URL: ${{ vars.DEV_KV_REST_API_URL }}
           KV_REST_API_TOKEN: ${{ vars.DEV_KV_REST_API_TOKEN }}
           NEXT_PUBLIC_SEGMENT_WRITE_KEY: ${{ vars.DEV_SEGMENT_WRITE_KEY }}
           NEXT_PUBLIC_BASEPATH: ${{ vars.PUBLIC_BASEPATH }}
+          NEXT_PUBLIC_ORIGIN: ${{ vars.WEB_ORIGIN_PROD }}
         run: |
           # docker kill $(docker ps -aq) && docker rm $(docker ps -aq)
           docker network create aiweb_network

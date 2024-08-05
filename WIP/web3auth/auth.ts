@@ -1,5 +1,5 @@
-import { Web3AuthNoModal } from '@web3auth/no-modal'
 import createDebug from 'debug'
+import { Web3AuthNoModal } from '@web3auth/no-modal'
 import { IProvider, WALLET_ADAPTERS } from '@web3auth/base'
 import { authConfig } from './auth.config'
 // import { z } from 'zod'
@@ -47,8 +47,8 @@ const exchangeCodeForAccessToken = async (code: string) => {
     const { data } = await httpClient.post(
       'https://github.com/login/oauth/access_token',
       {
-        client_id: process.env.GITHUB_CLIENT_ID,
-        client_secret: process.env.GITHUB_CLIENT_SECRET,
+        client_id: 'Iv23liy6buSyVzRmgxmZ',
+        client_secret: 'ec06305fac9021906cc065cecd7441fbc6bb005b',
         code: code
       },
       {
@@ -109,12 +109,4 @@ export const auth = async (
     console.error(error)
     return null
   }
-}
-
-export const getOauthUrl = () => {
-  const origin =
-    typeof window === 'undefined'
-      ? process.env.WEB_ORIGIN
-      : window.location.origin
-  return `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${origin}${process.env.NEXT_PUBLIC_BASEPATH}/login`
 }

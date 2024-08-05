@@ -1,7 +1,7 @@
 import React from 'react'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import { ThemeProvider } from '@/components/ThemeProvider'
+import { AppShell } from '@/components/AppShell'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -19,14 +19,14 @@ function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ThemeProvider
+        <AppShell
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
           {children}
-        </ThemeProvider>
+        </AppShell>
       </body>
     </html>
   )

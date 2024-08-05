@@ -25,3 +25,13 @@ pnpm create next-app --example with-ant-design with-ant-design-app
 ```
 
 Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+
+```mermaid
+flowchart LR
+    form --action--> signUrl --> callbackUrl --> close
+```
+
+```mermaid
+flowchart LR
+    form --ajax--> signUrl --> popup --> callbackUrl --> close
+```

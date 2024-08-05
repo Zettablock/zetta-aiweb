@@ -10,13 +10,17 @@ import type Entity from '@ant-design/cssinjs/es/Cache'
 
 import type { ThemeConfig } from 'antd'
 
+import { httpClient } from '@/modules/http-client'
+
+httpClient.defaults.baseURL = process.env.NEXT_API_GATEWAY
+
 const theme: ThemeConfig = {
   token: {
     fontSize: 14
   }
 }
 
-export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+export function AppShell({ children, ...props }: ThemeProviderProps) {
   const cache = React.useMemo<Entity>(() => createCache(), [])
   useServerInsertedHTML(() => (
     <style

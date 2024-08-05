@@ -47,7 +47,6 @@ declare global {
       NEXTAUTH_URL?: string
       VERCEL?: string
 
-      WEB_ORIGIN: string
       AI_API_KEY: string
       AUTH_CLIENT_ID: string
       GITHUB_CLIENT_ID: string
@@ -60,6 +59,7 @@ declare global {
 
       NEXT_PUBLIC_SEGMENT_WRITE_KEY: string
       NEXT_PUBLIC_BASTPATH: string
+      NEXT_PUBLIC_ORIGIN: string
     }
   }
 }

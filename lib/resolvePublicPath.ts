@@ -1,4 +1,4 @@
-import { join } from 'path'
+import { join } from 'path-browserify'
 
 export function resolvePublicPath(relativePath: string) {
   const realPath = join(process.env.NEXT_PUBLIC_BASEPATH || '', relativePath)

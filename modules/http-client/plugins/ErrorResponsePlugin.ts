@@ -45,7 +45,8 @@ export class ErrorResponsePlugin extends ResponsePlugin {
     if (!(error instanceof AxiosError)) {
       throw new AxiosError((error as any).message, 'response_proccess_error')
     }
-    const { data } = error.response!
+    if (!error.response) throw error
+    const { data } = error.response
     if (this.options.errorValidator!(data)) {
       const axiosError = new AxiosError(
         error.message,

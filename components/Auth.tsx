@@ -1,16 +1,27 @@
-'use server'
+'use client'
 
-import { getOauthUrl } from '@/auth'
+import { WindowPopup } from '@/modules/auth/WindowPopup'
 import { resolvePublicPath } from '@/lib/resolvePublicPath'
+import { signinGithub } from '@/modules/apis/qugate-v2-auth/signinGithub'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { LoginError } from '@/modules/auth/AuthError'
+import { uuid } from 'uuidv4'
 
 interface AuthProps {
-  action: any
+  action?: any
   actionType: 'Login' | 'Register'
 }
 
-export default async function Auth({ action, actionType }: AuthProps) {
+export function Auth({ action, actionType }: AuthProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  if (searchParams.has('code') && window.top !== window) {
+    window.name = `code=${searchParams.get('code')}`
+    window.close()
+  }
+
   return (
     <div className="min-h-[calc(100vh-380px)] pt-16">
       <div className="max-w-[460px] mx-auto">
@@ -40,7 +51,7 @@ export default async function Auth({ action, actionType }: AuthProps) {
               </span>
             )}
           </div>
-          <form className="w-full px-8">
+          <div className="w-full px-8">
             <div className="form-control w-full mt-6">
               <label className="label">
                 <span className="label-text">Email</span>
@@ -67,7 +78,7 @@ export default async function Auth({ action, actionType }: AuthProps) {
             <button className="btn btn-primary bg-[#263DFF] mt-10 w-full">
               {actionType}
             </button>
-          </form>
+          </div>
           {actionType === 'Login' ? (
             <div className="text-center mt-5 text-sm px-8 font-semibold">
               By logging in, you are agreeing to the{' '}
@@ -105,12 +116,26 @@ export default async function Auth({ action, actionType }: AuthProps) {
 
           <div className="px-8 mt-5">
             <div className={'border border-base-300 h-0 mb-5 border-b-0'} />
-            <Link
-              href={getOauthUrl()}
+            <button
+              onClick={() => {
+                const currentWindow = new WindowPopup({
+                  url: 'https://qugate-dev.prod-czff.zettablock.dev/qugate/v2/auth/signin/github',
+                  timeout: 1000 * 10
+                })
+
+                return currentWindow.listenOnChannel().then(
+                  res => {
+                    debugger
+                  },
+                  err => {
+                    debugger
+                  }
+                )
+              }}
               className="btn btn-outline gap-5 w-full normal-case text-xl"
             >
               Continue with Github
-            </Link>
+            </button>
           </div>
         </div>
       </div>

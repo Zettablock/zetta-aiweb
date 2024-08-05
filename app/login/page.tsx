@@ -1,19 +1,17 @@
-import { auth, signIn } from '@/auth'
-import { redirect } from 'next/navigation'
-import Auth from '@/views/Auth'
+import { Auth } from '@/components/Auth'
+import { authMe } from '@/modules/apis/qugate-v2-auth/authMe'
+import { httpClient } from '@/modules/http-client'
 
-export const dynamic = process.env.EXPORT ? 'force-static' : 'auto'
+httpClient.defaults.baseURL = process.env.NEXT_API_GATEWAY
+
+export const dynamic = process.env.NEXT_PUBLIC_EXPORT ? 'force-static' : 'auto'
 
 export default async function LoginPage({ searchParams }: any) {
-  const user = await auth(searchParams.code)
-
-  if (user) {
-    redirect(process.env.NEXT_PUBLIC_BASEPATH || '/')
-  }
-
   return (
     <main>
-      <Auth action={signIn} actionType="Login" />
+      <form>
+        <Auth actionType="Login" />
+      </form>
     </main>
   )
 }
