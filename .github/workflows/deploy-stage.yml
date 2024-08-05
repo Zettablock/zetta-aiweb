@@ -3,8 +3,7 @@ on:
   push:
     tags:
       - 'v*'
-    branches:
-      - 'main'
+    branches: ['main']
     paths: ['./**']
     workflow_dispatch:
 
