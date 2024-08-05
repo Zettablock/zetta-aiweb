@@ -3,33 +3,37 @@ on:
   push:
     branches: ['main']
     paths: ['./**']
-    workflow_dispatch:
-
-permissions:
-  contents: write
+  workflow_dispatch:
 
 jobs:
-  build-deploy-staging:
+  build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [21.x]
+        pnpm-version: [9.x]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v1
         with:
           fetch-depth: 0
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Use Pnpm ${{ matrix.pnpm-version }}
+        uses: pnpm/action-setup@v2
         with:
-          aws-access-key-id: ${{ secrets.GHA_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.GHA_AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build, tag, and push image to Amazon ECR
+          version: ${{ matrix.pnpm-version }}
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Pnpm Install
+        working-directory: .
+        run: |
+          pnpm install
+      - name: DEV Build
+        working-directory: .
         env:
           AI_API_KEY: ${{ vars.DEV_AI_API_KEY }}
           AUTH_CLIENT_ID: ${{ vars.DEV_AUTH_CLIENT_ID }}
@@ -39,50 +43,23 @@ jobs:
           NEXT_PUBLIC_BASEPATH: ${{ vars.PUBLIC_BASEPATH }}
           NEXT_PUBLIC_ORIGIN: ${{ vars.WEB_ORIGIN_STAGE }}
         run: |
-          # docker kill $(docker ps -aq) && docker rm $(docker ps -aq)
-          docker network create aiweb_network
-          docker compose -f docker-compose.staging.yml build
-          docker compose -f docker-compose.staging.yml up
-
-      - name: Send Slack Notification
-        id: slack
-        uses: slackapi/slack-github-action@v1.24.0
-        with:
-          # For posting a rich message using Block Kit
-          payload: |
-            {
-              "text": "Staging build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "Staging build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "This is for:"
-                  }
-                },
-                 {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": ${{ toJSON(github.event.head_commit.message) || 'No description provided.' }}
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "Visit <https://stage-app.zettablock.dev/aiweb/|[Staging Env]> to see the latest UI. Hey <@U0750EURA2V>, Please check the UI in Staging."
-                  }
-                }
-              ]
-            }
+          pnpm export:demo
+          mkdir -p ./build
+          cp -R ./out/aiweb ./build/aiweb
+      - name: Deploy to S3
+        uses: jakejarvis/s3-sync-action@master
         env:
-          SLACK_WEBHOOK_URL: ${{ vars.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+          # https://github.com/Zettablock/zetta-webcode/settings/variables/actions
+          AWS_S3_BUCKET: ${{ vars.AWS_BUCKET_NAME_STAGE }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.GHA_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.GHA_AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          SOURCE_DIR: './build'
+      - name: Invalidate CloudFront
+        uses: chetan/invalidate-cloudfront-action@v2
+        env:
+          DISTRIBUTION: ${{ vars.AWS_DISTRIBUTION_ID_STAGE }}
+          PATHS: '/aiweb/*'
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.GHA_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.GHA_AWS_SECRET_ACCESS_KEY }}
