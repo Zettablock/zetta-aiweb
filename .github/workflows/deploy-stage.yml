@@ -1,8 +1,6 @@
 name: STAGE deploy
 on:
   push:
-    tags:
-      - 'v*'
     branches: ['main']
     paths: ['./**']
     workflow_dispatch:
