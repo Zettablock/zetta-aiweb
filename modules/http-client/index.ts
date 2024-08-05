@@ -25,8 +25,7 @@ export const defaultPlguinsConfig = {
 }
 
 export const httpClient = getHttpClient(
-  {
-    withCredentials: true
-  },
+  { withCredentials: true },
+  res => res.data.data,
   defaultPlguinsConfig
 )

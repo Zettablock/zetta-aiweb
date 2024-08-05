@@ -1,4 +1,4 @@
-FROM node:20-alpine AS base
+FROM node:21-alpine AS base
 
 # Step 1. Rebuild the source code only when needed
 FROM base AS builder
@@ -28,6 +28,10 @@ ARG KV_REST_API_TOKEN
 ENV KV_REST_API_TOKEN=${KV_REST_API_TOKEN}
 ARG NEXT_PUBLIC_SEGMENT_WRITE_KEY
 ENV NEXT_PUBLIC_SEGMENT_WRITE_KEY=${NEXT_PUBLIC_SEGMENT_WRITE_KEY}
+ARG NEXT_PUBLIC_BASTPATH
+ENV NEXT_PUBLIC_BASTPATH=${NEXT_PUBLIC_BASTPATH}
+ARG WEB_ORIGIN
+ENV NEXT_PUBLIC_ORIGIN=${WEB_ORIGIN}
 
 # Next.js collects completely anonymous telemetry data about general usage. Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line to disable telemetry at build time

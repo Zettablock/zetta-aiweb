@@ -25,6 +25,8 @@ services:
       KV_REST_API_URL: ${KV_REST_API_URL}
       KV_REST_API_TOKEN: ${KV_REST_API_TOKEN}
       NEXT_PUBLIC_SEGMENT_WRITE_KEY: ${NEXT_PUBLIC_SEGMENT_WRITE_KEY}
+      NEXT_PUBLIC_BASEPATH: ${NEXT_PUBLIC_BASEPATH}
+      NEXT_PUBLIC_ORIGIN: ${WEB_ORIGIN}
     # Set environment variables based on the .env file
     # env_file:
       # - .env

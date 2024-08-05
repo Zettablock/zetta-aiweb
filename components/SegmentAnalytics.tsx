@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { analytics } from '@/lib/segment'
 
-export function SegmentAnalytics() {
+export function SegmentAnalytics(props: any) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -12,5 +12,5 @@ export function SegmentAnalytics() {
     analytics.page()
   }, [pathname, searchParams])
 
-  return null
+  return <div>1</div>
 }

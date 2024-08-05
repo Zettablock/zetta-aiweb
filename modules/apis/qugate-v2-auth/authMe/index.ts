@@ -3,16 +3,16 @@ import { ClassConstructor, Type } from 'class-transformer'
 import { IsOptionalString, httpClient } from '@/modules/http-client'
 import { AxiosRequestConfig } from 'axios'
 
-export namespace authUserDTO {
+export namespace authMeDTO {
   export interface Req {}
 
   export class User {
     @IsOptionalString()
     id: string
     @IsOptionalString()
-    displayName?: string
+    email: string
     @IsOptionalString()
-    email?: string
+    displayName?: string
     @IsOptionalString()
     name?: string
     @IsOptionalString()
@@ -25,7 +25,7 @@ export namespace authUserDTO {
     @IsOptional()
     @ValidateNested()
     @Type(() => User)
-    User?: User | null
+    data?: User | null
   }
 
   export class Response {
@@ -36,12 +36,13 @@ export namespace authUserDTO {
   }
 }
 
-export const authUser = (
-  reqData: authUserDTO.Req,
+export const authMe = (
+  reqData: authMeDTO.Req,
   config = {} as AxiosRequestConfig & {
-    dto: ClassConstructor<authUserDTO.User>
+    dto: ClassConstructor<authMeDTO.User>
   }
 ) => {
-  config.dto = authUserDTO.User
-  return httpClient.post('/qugate/v2/auth/me', reqData, config)
+  config.dto = authMeDTO.User
+  console.log(httpClient.defaults.baseURL)
+  return httpClient.post<authMeDTO.User>('/qugate/v2/auth/me', reqData, config)
 }

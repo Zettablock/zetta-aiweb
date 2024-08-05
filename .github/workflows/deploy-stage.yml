@@ -15,10 +15,6 @@ jobs:
   build-deploy-staging:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [20.x]
-
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -30,7 +26,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.GHA_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.GHA_AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ variables.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -38,11 +34,13 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         env:
-          AI_API_KEY: ${{ variables.PROD_AI_API_KEY }}
-          AUTH_CLIENT_ID: ${{ variables.PROD_AUTH_CLIENT_ID }}
-          KV_REST_API_URL: ${{ variables.PROD_KV_REST_API_URL }}
-          KV_REST_API_TOKEN: ${{ variables.PROD_KV_REST_API_TOKEN }}
-          NEXT_PUBLIC_SEGMENT_WRITE_KEY: ${{ variables.PROD_SEGMENT_WRITE_KEY }}
+          AI_API_KEY: ${{ vars.DEV_AI_API_KEY }}
+          AUTH_CLIENT_ID: ${{ vars.DEV_AUTH_CLIENT_ID }}
+          KV_REST_API_URL: ${{ vars.DEV_KV_REST_API_URL }}
+          KV_REST_API_TOKEN: ${{ vars.DEV_KV_REST_API_TOKEN }}
+          NEXT_PUBLIC_SEGMENT_WRITE_KEY: ${{ vars.DEV_SEGMENT_WRITE_KEY }}
+          NEXT_PUBLIC_BASEPATH: ${{ vars.PUBLIC_BASEPATH }}
+          NEXT_PUBLIC_ORIGIN: ${{ vars.WEB_ORIGIN_STAGE }}
         run: |
           # docker kill $(docker ps -aq) && docker rm $(docker ps -aq)
           docker network create aiweb_network
@@ -89,5 +87,5 @@ jobs:
               ]
             }
         env:
-          SLACK_WEBHOOK_URL: ${{ variables.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ vars.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

@@ -12,7 +12,7 @@ export class RiskRequestPlugin extends RequestPlugin {
     super(options)
   }
 
-  public async handle<V extends AxiosRequestConfig>(value: V) {
+  public handle = async <V extends AxiosRequestConfig>(value: V) => {
     if (getCurrentPlatform().isNativePlatform) return value
 
     const riskHeaderName =

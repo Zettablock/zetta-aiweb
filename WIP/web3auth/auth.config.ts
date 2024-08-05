@@ -14,7 +14,8 @@ const chainConfig = {
   logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png'
 }
 export const authConfig = {
-  clientId: process.env.NEXT_PUBLIC_AUTH_CLIENT_ID,
+  clientId:
+    'BPL3-0HC7TXvXpEKFA_SZhAG-HFzhDEqwC-2nT2AY6XMxrEaXxqVxDUBOfeKuQIc_mOYwXcj4sqFM_paz5I0nj8',
   web3AuthNetwork: WEB3AUTH_NETWORK.TESTNET,
   privateKeyProvider: new EthereumPrivateKeyProvider({
     config: { chainConfig }

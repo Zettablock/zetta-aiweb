@@ -11,7 +11,7 @@ export class TokenRequestPlugin extends RequestPlugin {
     super(options)
   }
 
-  public async handle<V extends AxiosRequestConfig>(value: V) {
+  public handle = async <V extends AxiosRequestConfig>(value: V) => {
     const tokenHeaderName =
       (value as any).tokenHeaderName || this.options.tokenHeaderName
 

@@ -19,10 +19,10 @@ export class FallbackResponsePlugin extends ResponsePlugin {
     super(options)
   }
 
-  public handle<V extends AxiosResponse = AxiosResponse>(
+  public handle = <V extends AxiosResponse = AxiosResponse>(
     response: V,
     error?: AxiosError
-  ) {
+  ) => {
     const fallbackHeaderName =
       (response.config as any).fallbackHeaderName ||
       this.options.fallbackHeaderName
@@ -50,7 +50,7 @@ export class FallbackResponsePlugin extends ResponsePlugin {
     return response
   }
 
-  public handleError(error: AxiosError<any, any>) {
+  public handleError = (error: AxiosError<any, any>) => {
     const { response } = error
     if (
       getCurrentPlatform().isNativePlatform ||
@@ -60,7 +60,7 @@ export class FallbackResponsePlugin extends ResponsePlugin {
       throw error
     }
     if (response) {
-      return this.handle(response, error)
+      return this.handle(response, error) as never
     }
     throw error
   }
