@@ -67,11 +67,19 @@ export class WindowPopup extends EventEmitter<PopupHandlerEvents> {
           }, this.timeout)
         }
         if (this.window === undefined) clearInterval(this.windowTimer)
-        const search = this.window?.name || ''
-        if (search.startsWith('?code=')) {
-          this.codeDeferred.resolve(search)
-          this.close()
+          try {
+            const search = this.window?.name || ''
+            if (search.startsWith('?code=')) {
+              this.codeDeferred.resolve(search)
+              setTimeout(() => {
+                clearInterval(this.windowTimer)
+                this.close()
+              }, 500)
+            }
+        } catch(e) {
+
         }
+        
       }, 500)
     )
   }
