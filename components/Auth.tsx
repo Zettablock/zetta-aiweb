@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { LoginError } from '@/modules/auth/AuthError'
 import { uuid } from 'uuidv4'
+import { httpClient } from '@/modules/http-client'
 
 interface AuthProps {
   action?: any
@@ -18,7 +19,7 @@ export function Auth({ action, actionType }: AuthProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   if (searchParams.has('code') && window.opener !== window) {
-    window.name = `code=${searchParams.get('code')}`
+    window.name = `code=${searchParams.get('code')}&state=${searchParams.get('state')}`
     window.close()
   }
 
@@ -124,11 +125,17 @@ export function Auth({ action, actionType }: AuthProps) {
                 })
 
                 return currentWindow.listenOnChannel().then(
-                  res => {
-                    debugger
+                  search => {
+                    httpClient
+                      .post(
+                        `https://neo-dev.prod.zettablock.com/signin/github/callback?${search}`
+                      )
+                      .then(res => {
+                        router.push('/aiweb')
+                      })
                   },
                   err => {
-                    debugger
+                    console.error(err)
                   }
                 )
               }}
