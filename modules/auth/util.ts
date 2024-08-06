@@ -67,7 +67,7 @@ export type MFA_SETTINGS = {
 
 export type MfaSettings = Partial<Record<MFA_FACTOR_TYPE, MFA_SETTINGS>>
 
-export class Deferred<T = string> {
+export class Deferred<T> {
   private readonly _promise: Promise<T>
   private _resolve: (value: T | PromiseLike<T>) => void
   private _reject: (reason?: any) => void
