@@ -19,7 +19,7 @@ export function Auth({ action, actionType }: AuthProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   if (searchParams.has('code') && window.opener !== window) {
-    window.name = `code=${searchParams.get('code')}&state=${searchParams.get('state')}`
+    window.name = `?code=${searchParams.get('code')}&state=${searchParams.get('state')}`
     window.close()
   }
 
