@@ -71,10 +71,9 @@ export class WindowPopup extends EventEmitter<PopupHandlerEvents> {
             const search = this.window?.name || ''
             if (search.startsWith('?code=')) {
               this.codeDeferred.resolve(search)
-              setTimeout(() => {
-                clearInterval(this.windowTimer)
-                this.close()
-              }, 500)
+              
+              clearInterval(this.windowTimer)
+              this.close()
             }
         } catch(e) {
 

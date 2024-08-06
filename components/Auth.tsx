@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { LoginError } from '@/modules/auth/AuthError'
 import { uuid } from 'uuidv4'
 import { httpClient } from '@/modules/http-client'
+import { useEffect } from 'react'
 
 interface AuthProps {
   action?: any
@@ -20,9 +21,15 @@ export function Auth({ action, actionType }: AuthProps) {
   const searchParams = useSearchParams()
   if (searchParams.has('code') && window.opener !== window) {
     window.name = `?code=${searchParams.get('code')}&state=${searchParams.get('state')}`
-    window.close()
+    return null
   }
-
+  useEffect(() => {
+    if (window.name) {
+      setTimeout(() => {
+        window.close()
+      }, 500);
+    }
+  }, [])
   return (
     <div className="min-h-[calc(100vh-380px)] pt-16">
       <div className="max-w-[460px] mx-auto">
