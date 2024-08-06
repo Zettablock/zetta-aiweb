@@ -119,7 +119,7 @@ export function Auth({ action, actionType }: AuthProps) {
             <button
               onClick={() => {
                 const currentWindow = new WindowPopup({
-                  url: 'https://qugate-dev.prod-czff.zettablock.dev/qugate/v2/auth/signin/github',
+                  url: 'https://neo-dev.prod.zettablock.com/signin/github',
                   timeout: 1000 * 10
                 })
 

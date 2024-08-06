@@ -9,9 +9,7 @@ export const dynamic = process.env.NEXT_PUBLIC_EXPORT ? 'force-static' : 'auto'
 export default async function LoginPage({ searchParams }: any) {
   return (
     <main>
-      <form>
-        <Auth actionType="Login" />
-      </form>
+      <Auth actionType="Login" />
     </main>
   )
 }
