@@ -128,7 +128,7 @@ export function Auth({ action, actionType }: AuthProps) {
                   search => {
                     httpClient
                       .post(
-                        `https://neo-dev.prod.zettablock.com/signin/github/callback?${search}`
+                        `https://neo-dev.prod.zettablock.com/signin/github/callback${search}`
                       )
                       .then(res => {
                         router.push('/aiweb')
