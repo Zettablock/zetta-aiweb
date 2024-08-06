@@ -19,17 +19,21 @@ interface AuthProps {
 export function Auth({ action, actionType }: AuthProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  if (searchParams.has('code') && window.opener !== window) {
-    window.name = `?code=${searchParams.get('code')}&state=${searchParams.get('state')}`
-    return null
-  }
+  const inOpener = searchParams.has('code') && window.opener !== window
+
   useEffect(() => {
-    if (window.name) {
+    if (inOpener) {
       setTimeout(() => {
         window.close()
       }, 500);
     }
   }, [])
+
+  if (inOpener) {
+    window.name = `?code=${searchParams.get('code')}&state=${searchParams.get('state')}`
+    return null
+  }
+  
   return (
     <div className="min-h-[calc(100vh-380px)] pt-16">
       <div className="max-w-[460px] mx-auto">
