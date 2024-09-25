@@ -1,47 +1,45 @@
-import { Web3AuthNoModal } from '@web3auth/no-modal'
-import createDebug from 'debug'
-import { IProvider, WALLET_ADAPTERS } from '@web3auth/base'
+import NextAuth from 'next-auth'
+import Credentials from 'next-auth/providers/credentials'
 import { authConfig } from './auth.config'
-// import { z } from 'zod'
-// TODO
-// import { getUser } from './app/login/actions'
-import {
-  LOGIN_PROVIDER_TYPE,
-  OpenloginAdapter
-} from '@web3auth/openlogin-adapter'
+import { z } from 'zod'
+import { getStringFromBuffer } from './lib/utils'
+import { getUser } from './app/login/actions'
 
-const debug = createDebug('App-Auth')
-let web3auth: Web3AuthNoModal | null = null
-let web3authProvider: IProvider | null = null
+export const { auth, signIn, signOut } = NextAuth({
+  ...authConfig,
+  providers: [
+    Credentials({
+      async authorize(credentials) {
+        const parsedCredentials = z
+          .object({
+            email: z.string().email(),
+            password: z.string().min(6)
+          })
+          .safeParse(credentials)
 
-export const signIn = async () => {
-  if (!web3auth) {
-    debug('web3auth not initialized yet')
-  }
-  web3auth = new Web3AuthNoModal({
-    clientId: authConfig.clientId,
-    web3AuthNetwork: authConfig.web3AuthNetwork,
-    privateKeyProvider: authConfig.privateKeyProvider,
-    uiConfig: authConfig.uiConfig
-  })
+        if (parsedCredentials.success) {
+          const { email, password } = parsedCredentials.data
+          const user = await getUser(email)
 
-  const openloginAdapter = new OpenloginAdapter({
-    adapterSettings: authConfig.adapterSettings,
-    loginSettings: authConfig.loginSettings,
-    privateKeyProvider: authConfig.privateKeyProvider
-  })
+          if (!user) return null
 
-  web3auth.configureAdapter(openloginAdapter)
-  await web3auth.init()
+          const encoder = new TextEncoder()
+          const saltedPassword = encoder.encode(password + user.salt)
+          const hashedPasswordBuffer = await crypto.subtle.digest(
+            'SHA-256',
+            saltedPassword
+          )
+          const hashedPassword = getStringFromBuffer(hashedPasswordBuffer)
 
-  web3authProvider = await web3auth.connectTo(WALLET_ADAPTERS.OPENLOGIN, {
-    loginProvider: 'github' as LOGIN_PROVIDER_TYPE
-  })
-}
+          if (hashedPassword === user.password) {
+            return user
+          } else {
+            return null
+          }
+        }
 
-export const auth = async () => {
-  if (web3auth?.connected) {
-    return await web3auth.getUserInfo()
-  }
-  return null
-}
+        return null
+      }
+    })
+  ]
+})

@@ -1,9 +1,13 @@
-const exportNextConfig = process.env.EXPORT ? { output: 'export' } : {}
-
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  ...exportNextConfig,
-  reactStrictMode: true
+module.exports = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        port: '',
+        pathname: '**'
+      }
+    ]
+  }
 }
-
-module.exports = nextConfig

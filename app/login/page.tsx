@@ -1,18 +1,18 @@
-import { auth, signIn } from '@/auth'
+import { auth } from '@/auth'
+import LoginForm from '@/components/login-form'
+import { Session } from '@/lib/types'
 import { redirect } from 'next/navigation'
-import { Login } from './Login'
 
 export default async function LoginPage() {
-  const user = await auth()
+  const session = (await auth()) as Session
 
-  console.error(user)
-  if (user) {
+  if (session) {
     redirect('/')
   }
 
   return (
-    <main>
-      <Login />
+    <main className="flex flex-col p-4">
+      <LoginForm />
     </main>
   )
 }
