@@ -5,6 +5,8 @@
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
+    "strictPropertyInitialization": false,
+    "experimentalDecorators": true,
     "noEmit": true,
     "incremental": true,
     "esModuleInterop": true,
@@ -27,6 +29,7 @@
   "include": [
     "next-env.d.ts",
     "next-auth.d.ts",
+    "next-app.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"

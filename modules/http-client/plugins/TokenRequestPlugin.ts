@@ -1,30 +1,31 @@
-import { AxiosInterceptorOptions, AxiosRequestConfig } from 'axios'
-import { RequestPlugin } from './BasePlugin'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { AxiosInterceptorOptions, AxiosRequestConfig } from 'axios';
+import { RequestPlugin } from './BasePlugin';
 
 export class TokenRequestPlugin extends RequestPlugin {
   constructor(
     public options: AxiosInterceptorOptions & {
-      tokenHeaderName?: string
-      getTokenHeader?: () => Promise<any>
+      tokenHeaderName?: string;
+      getTokenHeader?: () => Promise<any>;
     }
   ) {
-    super(options)
+    super(options);
   }
 
   public handle = async <V extends AxiosRequestConfig>(value: V) => {
     const tokenHeaderName =
-      (value as any).tokenHeaderName || this.options.tokenHeaderName
+      (value as any).tokenHeaderName || this.options.tokenHeaderName;
 
     if (this.options.getTokenHeader) {
       if (tokenHeaderName && value.headers && value.headers[tokenHeaderName]) {
-        return value
+        return value;
       }
-      const headers = await this.options.getTokenHeader()
+      const headers = await this.options.getTokenHeader();
       value.headers = {
         ...value.headers,
-        ...headers
-      }
+        ...headers,
+      };
     }
-    return value
-  }
+    return value;
+  };
 }

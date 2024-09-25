@@ -1,0 +1,734 @@
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-nested-ternary */
+import {
+  InvalidResponseDataError,
+  LanguageModelV1,
+  LanguageModelV1CallWarning,
+  LanguageModelV1FinishReason,
+  LanguageModelV1LogProbs,
+  LanguageModelV1StreamPart,
+  UnsupportedFunctionalityError,
+} from '@ai-sdk/provider';
+import {
+  FetchFunction,
+  ParseResult,
+  combineHeaders,
+  createEventSourceResponseHandler,
+  createJsonResponseHandler,
+  generateId,
+  isParsableJson,
+  postJsonToApi,
+} from '@ai-sdk/provider-utils';
+import { z } from 'zod';
+import { convertToChatMessages } from './convert-to-chat-messages';
+import { mapChatLogProbsOutput } from './map-chat-logprobs';
+import { mapFinishReason } from './map-finish-reason';
+import { ChatSettings } from './settings';
+import { errorDataSchema, failedResponseHandler } from './error';
+
+function prepareToolsAndToolChoice({
+  mode,
+  useLegacyFunctionCalling = false,
+  structuredOutputs = false,
+}: {
+  mode: Parameters<LanguageModelV1['doGenerate']>[0]['mode'] & {
+    type: 'regular';
+  };
+  useLegacyFunctionCalling?: boolean;
+  structuredOutputs?: boolean;
+}) {
+  // when the tools array is empty, change it to undefined to prevent errors:
+  const tools = mode.tools?.length ? mode.tools : undefined;
+
+  if (tools == null) {
+    return { tools: undefined, tool_choice: undefined };
+  }
+
+  const { toolChoice } = mode;
+
+  if (useLegacyFunctionCalling) {
+    const mappedFunctions = tools.map((tool) => ({
+      name: tool.name,
+      description: tool.description,
+      parameters: tool.parameters,
+    }));
+
+    if (toolChoice == null) {
+      return { functions: mappedFunctions, function_call: undefined };
+    }
+
+    const { type } = toolChoice;
+
+    switch (type) {
+      case 'auto':
+      case 'none':
+      case undefined:
+        return {
+          functions: mappedFunctions,
+          function_call: undefined,
+        };
+      case 'required':
+        throw new UnsupportedFunctionalityError({
+          functionality: 'useLegacyFunctionCalling and toolChoice: required',
+        });
+      default:
+        return {
+          functions: mappedFunctions,
+          function_call: { name: toolChoice.toolName },
+        };
+    }
+  }
+
+  const mappedTools = tools.map((tool) => ({
+    type: 'function',
+    function: {
+      name: tool.name,
+      description: tool.description,
+      parameters: tool.parameters,
+      strict: structuredOutputs === true ? true : undefined,
+    },
+  }));
+
+  if (toolChoice == null) {
+    return { tools: mappedTools, tool_choice: undefined };
+  }
+
+  const { type } = toolChoice;
+
+  switch (type) {
+    case 'auto':
+    case 'none':
+    case 'required':
+      return { tools: mappedTools, tool_choice: type };
+    case 'tool':
+      return {
+        tools: mappedTools,
+        tool_choice: {
+          type: 'function',
+          function: {
+            name: toolChoice.toolName,
+          },
+        },
+      };
+    default: {
+      const _exhaustiveCheck: never = type;
+      throw new Error(`Unsupported tool choice type: ${_exhaustiveCheck}`);
+    }
+  }
+}
+
+const TokenUsageSchema = z
+  .object({
+    prompt_tokens: z.number().nullish(),
+    completion_tokens: z.number().nullish(),
+  })
+  .nullish();
+
+// limited version of the schema, focussed on what is needed for the implementation
+// this approach limits breakages when the API changes and increases efficiency
+const ChatResponseSchema = z.object({
+  choices: z.array(
+    z.object({
+      message: z.object({
+        role: z.literal('assistant').nullish(),
+        content: z.string().nullish(),
+        function_call: z
+          .object({
+            arguments: z.string(),
+            name: z.string(),
+          })
+          .nullish(),
+        tool_calls: z
+          .array(
+            z.object({
+              id: z.string().nullish(),
+              type: z.literal('function'),
+              function: z.object({
+                name: z.string(),
+                arguments: z.string(),
+              }),
+            })
+          )
+          .nullish(),
+      }),
+      index: z.number(),
+      logprobs: z
+        .object({
+          content: z
+            .array(
+              z.object({
+                token: z.string(),
+                logprob: z.number(),
+                top_logprobs: z.array(
+                  z.object({
+                    token: z.string(),
+                    logprob: z.number(),
+                  })
+                ),
+              })
+            )
+            .nullable(),
+        })
+        .nullish(),
+      finish_reason: z.string().nullish(),
+    })
+  ),
+  usage: TokenUsageSchema,
+});
+
+// limited version of the schema, focussed on what is needed for the implementation
+// this approach limits breakages when the API changes and increases efficiency
+const chatChunkSchema = z.union([
+  z.object({
+    choices: z.array(
+      z.object({
+        delta: z
+          .object({
+            role: z.enum(['assistant']).nullish(),
+            content: z.string().nullish(),
+            function_call: z
+              .object({
+                name: z.string().optional(),
+                arguments: z.string().optional(),
+              })
+              .nullish(),
+            tool_calls: z
+              .array(
+                z.object({
+                  index: z.number(),
+                  id: z.string().nullish(),
+                  type: z.literal('function').optional(),
+                  function: z.object({
+                    name: z.string().nullish(),
+                    arguments: z.string().nullish(),
+                  }),
+                })
+              )
+              .nullish(),
+          })
+          .nullish(),
+        logprobs: z
+          .object({
+            content: z
+              .array(
+                z.object({
+                  token: z.string(),
+                  logprob: z.number(),
+                  top_logprobs: z.array(
+                    z.object({
+                      token: z.string(),
+                      logprob: z.number(),
+                    })
+                  ),
+                })
+              )
+              .nullable(),
+          })
+          .nullish(),
+        finish_reason: z.string().nullable().optional(),
+        index: z.number(),
+      })
+    ),
+    usage: TokenUsageSchema,
+  }),
+  errorDataSchema,
+]);
+
+type ChatConfig = {
+  provider: string;
+  compatibility: 'strict' | 'compatible';
+  headers: () => Record<string, string | undefined>;
+  api: string;
+  fetch?: FetchFunction;
+};
+
+export class ChatLanguageModel implements LanguageModelV1 {
+  readonly specificationVersion = 'v1';
+
+  readonly modelId: string;
+
+  readonly settings: ChatSettings;
+
+  private readonly config: ChatConfig;
+
+  constructor(modelId: string, settings: ChatSettings, config: ChatConfig) {
+    this.modelId = modelId;
+    this.settings = settings;
+    this.config = config;
+  }
+
+  get supportsStructuredOutputs(): boolean {
+    return this.settings.structuredOutputs === true;
+  }
+
+  get defaultObjectGenerationMode() {
+    return this.supportsStructuredOutputs ? 'json' : 'tool';
+  }
+
+  get provider(): string {
+    return this.config.provider;
+  }
+
+  private getArgs({
+    mode,
+    prompt,
+    maxTokens,
+    temperature,
+    topP,
+    topK,
+    frequencyPenalty,
+    presencePenalty,
+    stopSequences,
+    responseFormat,
+    seed,
+  }: Parameters<LanguageModelV1['doGenerate']>[0]) {
+    const { type } = mode;
+
+    const warnings: LanguageModelV1CallWarning[] = [];
+
+    if (topK != null) {
+      warnings.push({
+        type: 'unsupported-setting',
+        setting: 'topK',
+      });
+    }
+
+    if (
+      responseFormat != null &&
+      responseFormat.type === 'json' &&
+      responseFormat.schema != null
+    ) {
+      warnings.push({
+        type: 'unsupported-setting',
+        setting: 'responseFormat',
+        details: 'JSON response format schema is not supported',
+      });
+    }
+
+    const { useLegacyFunctionCalling } = this.settings;
+
+    if (useLegacyFunctionCalling && this.settings.parallelToolCalls === true) {
+      throw new UnsupportedFunctionalityError({
+        functionality: 'useLegacyFunctionCalling with parallelToolCalls',
+      });
+    }
+
+    if (useLegacyFunctionCalling && this.settings.structuredOutputs === true) {
+      throw new UnsupportedFunctionalityError({
+        functionality: 'structuredOutputs with useLegacyFunctionCalling',
+      });
+    }
+
+    const baseArgs = {
+      // model id:
+      model: this.modelId,
+      service_id: this.modelId,
+
+      // model specific settings:
+      logit_bias: this.settings.logitBias,
+      logprobs:
+        this.settings.logprobs === true ||
+        typeof this.settings.logprobs === 'number'
+          ? true
+          : undefined,
+      top_logprobs:
+        typeof this.settings.logprobs === 'number'
+          ? this.settings.logprobs
+          : typeof this.settings.logprobs === 'boolean'
+          ? this.settings.logprobs
+            ? 0
+            : undefined
+          : undefined,
+      user: this.settings.user,
+      parallel_tool_calls: this.settings.parallelToolCalls,
+
+      // standardized settings:
+      max_tokens: maxTokens,
+      temperature,
+      top_p: topP,
+      frequency_penalty: frequencyPenalty,
+      presence_penalty: presencePenalty,
+      stop: stopSequences,
+      seed,
+
+      // response format:
+      response_format:
+        responseFormat?.type === 'json' ? { type: 'json_object' } : undefined,
+
+      // messages:
+      messages: convertToChatMessages({
+        prompt,
+        useLegacyFunctionCalling,
+      }),
+    };
+
+    switch (type) {
+      case 'regular': {
+        return {
+          args: {
+            ...baseArgs,
+            ...prepareToolsAndToolChoice({
+              mode,
+              useLegacyFunctionCalling,
+              structuredOutputs: this.settings.structuredOutputs,
+            }),
+          },
+          warnings,
+        };
+      }
+
+      case 'object-json': {
+        return {
+          args: {
+            ...baseArgs,
+            response_format:
+              this.settings.structuredOutputs === true
+                ? {
+                    type: 'json_schema',
+                    json_schema: {
+                      schema: mode.schema,
+                      strict: true,
+                      name: mode.name ?? 'response',
+                      description: mode.description,
+                    },
+                  }
+                : { type: 'json_object' },
+          },
+          warnings,
+        };
+      }
+
+      case 'object-tool': {
+        return {
+          args: useLegacyFunctionCalling
+            ? {
+                ...baseArgs,
+                function_call: {
+                  name: mode.tool.name,
+                },
+                functions: [
+                  {
+                    name: mode.tool.name,
+                    description: mode.tool.description,
+                    parameters: mode.tool.parameters,
+                  },
+                ],
+              }
+            : {
+                ...baseArgs,
+                tool_choice: {
+                  type: 'function',
+                  function: { name: mode.tool.name },
+                },
+                tools: [
+                  {
+                    type: 'function',
+                    function: {
+                      name: mode.tool.name,
+                      description: mode.tool.description,
+                      parameters: mode.tool.parameters,
+                      strict:
+                        this.settings.structuredOutputs === true
+                          ? true
+                          : undefined,
+                    },
+                  },
+                ],
+              },
+          warnings,
+        };
+      }
+
+      default: {
+        const _exhaustiveCheck: never = type;
+        throw new Error(`Unsupported type: ${_exhaustiveCheck}`);
+      }
+    }
+  }
+
+  async doGenerate(
+    options: Parameters<LanguageModelV1['doGenerate']>[0]
+  ): Promise<Awaited<ReturnType<LanguageModelV1['doGenerate']>>> {
+    const { args, warnings } = this.getArgs(options);
+
+    const { responseHeaders, value: response } = await postJsonToApi({
+      url: this.config.api,
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body: args,
+      failedResponseHandler,
+      successfulResponseHandler: createJsonResponseHandler(ChatResponseSchema),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch,
+    });
+
+    const { messages: rawPrompt, ...rawSettings } = args;
+    const choice = response.choices[0];
+
+    return {
+      text: choice.message.content ?? undefined,
+      toolCalls:
+        this.settings.useLegacyFunctionCalling && choice.message.function_call
+          ? [
+              {
+                toolCallType: 'function',
+                toolCallId: generateId(),
+                toolName: choice.message.function_call.name,
+                args: choice.message.function_call.arguments,
+              },
+            ]
+          : choice.message.tool_calls?.map((toolCall) => ({
+              toolCallType: 'function',
+              toolCallId: toolCall.id ?? generateId(),
+              toolName: toolCall.function.name,
+              args: toolCall.function.arguments!,
+            })),
+      finishReason: mapFinishReason(choice.finish_reason),
+      usage: {
+        promptTokens: response.usage?.prompt_tokens ?? NaN,
+        completionTokens: response.usage?.completion_tokens ?? NaN,
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      rawCall: { rawPrompt, rawSettings } as any,
+      rawResponse: { headers: responseHeaders },
+      warnings,
+      logprobs: mapChatLogProbsOutput(choice.logprobs),
+    };
+  }
+
+  async doStream(
+    options: Parameters<LanguageModelV1['doStream']>[0]
+  ): Promise<Awaited<ReturnType<LanguageModelV1['doStream']>>> {
+    const { args, warnings } = this.getArgs(options);
+
+    const { responseHeaders, value: response } = await postJsonToApi({
+      url: this.config.api,
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body: {
+        ...args,
+        stream: true,
+
+        // only include stream_options when in strict compatibility mode:
+        stream_options:
+          this.config.compatibility === 'strict'
+            ? { include_usage: true }
+            : undefined,
+      },
+      failedResponseHandler,
+      successfulResponseHandler:
+        createEventSourceResponseHandler(chatChunkSchema),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch,
+    });
+
+    const { messages: rawPrompt, ...rawSettings } = args;
+
+    const toolCalls: Array<{
+      id: string;
+      type: 'function';
+      function: {
+        name: string;
+        arguments: string;
+      };
+    }> = [];
+
+    let finishReason: LanguageModelV1FinishReason = 'unknown';
+    let usage: {
+      promptTokens: number | undefined;
+      completionTokens: number | undefined;
+    } = {
+      promptTokens: undefined,
+      completionTokens: undefined,
+    };
+    let logprobs: LanguageModelV1LogProbs;
+
+    const { useLegacyFunctionCalling } = this.settings;
+
+    return {
+      stream: response.pipeThrough(
+        new TransformStream<
+          ParseResult<z.infer<typeof chatChunkSchema>>,
+          LanguageModelV1StreamPart
+        >({
+          transform(chunk, controller) {
+            // handle failed chunk parsing / validation:
+            if (!chunk.success) {
+              finishReason = 'error';
+              controller.enqueue({ type: 'error', error: chunk.error });
+              return;
+            }
+
+            const { value } = chunk;
+
+            // handle error chunks:
+            if ('error' in value) {
+              finishReason = 'error';
+              controller.enqueue({ type: 'error', error: value.error });
+              return;
+            }
+
+            if (value.usage != null) {
+              usage = {
+                promptTokens: value.usage.prompt_tokens ?? undefined,
+                completionTokens: value.usage.completion_tokens ?? undefined,
+              };
+            }
+
+            const choice = value.choices[0];
+
+            if (choice?.finish_reason != null) {
+              finishReason = mapFinishReason(choice.finish_reason);
+            }
+
+            if (choice?.delta == null) {
+              return;
+            }
+
+            const { delta } = choice;
+
+            if (delta.content != null) {
+              controller.enqueue({
+                type: 'text-delta',
+                textDelta: delta.content,
+              });
+            }
+
+            const mappedLogprobs = mapChatLogProbsOutput(choice?.logprobs);
+            if (mappedLogprobs?.length) {
+              if (logprobs === undefined) logprobs = [];
+              logprobs.push(...mappedLogprobs);
+            }
+
+            const mappedToolCalls: typeof delta.tool_calls =
+              useLegacyFunctionCalling && delta.function_call != null
+                ? [
+                    {
+                      type: 'function',
+                      id: generateId(),
+                      function: delta.function_call,
+                      index: 0,
+                    },
+                  ]
+                : delta.tool_calls;
+
+            if (mappedToolCalls != null) {
+              for (const toolCallDelta of mappedToolCalls) {
+                const { index } = toolCallDelta;
+
+                // Tool call start.  returns all information except the arguments in the first chunk.
+                if (toolCalls[index] == null) {
+                  if (toolCallDelta.type !== 'function') {
+                    throw new InvalidResponseDataError({
+                      data: toolCallDelta,
+                      message: `Expected 'function' type.`,
+                    });
+                  }
+
+                  if (toolCallDelta.id == null) {
+                    throw new InvalidResponseDataError({
+                      data: toolCallDelta,
+                      message: `Expected 'id' to be a string.`,
+                    });
+                  }
+
+                  if (toolCallDelta.function?.name == null) {
+                    throw new InvalidResponseDataError({
+                      data: toolCallDelta,
+                      message: `Expected 'function.name' to be a string.`,
+                    });
+                  }
+
+                  toolCalls[index] = {
+                    id: toolCallDelta.id,
+                    type: 'function',
+                    function: {
+                      name: toolCallDelta.function.name,
+                      arguments: toolCallDelta.function.arguments ?? '',
+                    },
+                  };
+
+                  const toolCall = toolCalls[index];
+
+                  // check if tool call is complete (some providers send the full tool call in one chunk)
+                  if (
+                    toolCall.function?.name != null &&
+                    toolCall.function?.arguments != null &&
+                    isParsableJson(toolCall.function.arguments)
+                  ) {
+                    // send delta
+                    controller.enqueue({
+                      type: 'tool-call-delta',
+                      toolCallType: 'function',
+                      toolCallId: toolCall.id,
+                      toolName: toolCall.function.name,
+                      argsTextDelta: toolCall.function.arguments,
+                    });
+
+                    // send tool call
+                    controller.enqueue({
+                      type: 'tool-call',
+                      toolCallType: 'function',
+                      toolCallId: toolCall.id ?? generateId(),
+                      toolName: toolCall.function.name,
+                      args: toolCall.function.arguments,
+                    });
+                  }
+
+                  // eslint-disable-next-line no-continue
+                  continue;
+                }
+
+                // existing tool call, merge
+                const toolCall = toolCalls[index];
+
+                if (toolCallDelta.function?.arguments != null) {
+                  toolCall.function!.arguments +=
+                    toolCallDelta.function?.arguments ?? '';
+                }
+
+                // send delta
+                controller.enqueue({
+                  type: 'tool-call-delta',
+                  toolCallType: 'function',
+                  toolCallId: toolCall.id,
+                  toolName: toolCall.function.name,
+                  argsTextDelta: toolCallDelta.function.arguments ?? '',
+                });
+
+                // check if tool call is complete
+                if (
+                  toolCall.function?.name != null &&
+                  toolCall.function?.arguments != null &&
+                  isParsableJson(toolCall.function.arguments)
+                ) {
+                  controller.enqueue({
+                    type: 'tool-call',
+                    toolCallType: 'function',
+                    toolCallId: toolCall.id ?? generateId(),
+                    toolName: toolCall.function.name,
+                    args: toolCall.function.arguments,
+                  });
+                }
+              }
+            }
+          },
+
+          flush(controller) {
+            controller.enqueue({
+              type: 'finish',
+              finishReason,
+              logprobs,
+              usage: {
+                promptTokens: usage.promptTokens ?? NaN,
+                completionTokens: usage.completionTokens ?? NaN,
+              },
+            });
+          },
+        })
+      ),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      rawCall: { rawPrompt, rawSettings } as any,
+      rawResponse: { headers: responseHeaders },
+      warnings,
+    };
+  }
+}

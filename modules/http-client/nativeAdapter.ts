@@ -1,81 +1,91 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AxiosError,
   AxiosHeaders,
   AxiosRequestConfig,
-  InternalAxiosRequestConfig
-} from 'axios'
+  InternalAxiosRequestConfig,
+} from 'axios';
 // @ts-ignore
-import settle from 'axios/unsafe/core/settle'
+// eslint-disable-next-line import/no-unresolved
+import settle from 'axios/unsafe/core/settle';
 // @ts-ignore
-import resolveConfig from 'axios/unsafe/helpers/resolveConfig'
+// eslint-disable-next-line import/no-unresolved
+import resolveConfig from 'axios/unsafe/helpers/resolveConfig';
 // @ts-ignore
-import utils from 'axios/unsafe/utils'
+// eslint-disable-next-line import/no-unresolved
+import utils from 'axios/unsafe/utils';
 // @ts-ignore
-import composeSignals from 'axios/unsafe/helpers/composeSignals'
+// eslint-disable-next-line import/no-unresolved
+import composeSignals from 'axios/unsafe/helpers/composeSignals';
 
-const resolvers = {} as any
+const resolvers = {} as any;
 
-;((res: any) => {
-  ;['text', 'arrayBuffer', 'blob', 'formData', 'stream'].forEach(type => {
+((res: any) => {
+  ['text', 'arrayBuffer', 'blob', 'formData', 'stream'].forEach((type) => {
+    // eslint-disable-next-line no-unused-expressions
     !resolvers[type] &&
       (resolvers[type] = utils.isFunction(res[type])
-        ? (res: any) => res[type]()
+        ? (_res: any) => _res[type]()
         : (_: any, config: InternalAxiosRequestConfig) => {
             throw new AxiosError(
               `Response type '${type}' is not supported`,
               AxiosError.ERR_NOT_SUPPORT,
               config
-            )
-          })
-  })
-})(new Response())
+            );
+          });
+  });
+})(new Response());
 
 export async function nativeAdapter(
   originConfig: AxiosRequestConfig & {
-    callNative: (request: Request) => Promise<any>
+    callNative: (request: Request) => Promise<any>;
   }
 ) {
   const { url, method, data, signal, cancelToken, timeout, headers } =
-    resolveConfig(originConfig)
+    resolveConfig(originConfig);
 
-  let [composedSignal, stopTimeout] =
+  const [composedSignal, stopTimeout] =
     signal || cancelToken || timeout
       ? composeSignals([signal, cancelToken], timeout)
-      : []
+      : [];
 
-  let finished: boolean
+  let finished: boolean;
   const onFinish = () => {
+    // eslint-disable-next-line no-unused-expressions
     !finished &&
       setTimeout(() => {
-        composedSignal && composedSignal.unsubscribe()
-      })
+        // eslint-disable-next-line no-unused-expressions
+        composedSignal && composedSignal.unsubscribe();
+      });
 
-    finished = true
-  }
+    finished = true;
+  };
   const request = new Request(url, {
     signal: composedSignal,
     method: method.toUpperCase(),
     headers: headers.normalize().toJSON(),
-    body: data
-  })
+    body: data,
+  });
 
   try {
-    const res = await originConfig.callNative(request)
+    const res = await originConfig.callNative(request);
     const response = {
       status: res.statusCode,
       statusText: res.statusMessage,
       headers: new AxiosHeaders(res.headers),
       config: originConfig,
-      request
-    }
+      request,
+    };
 
-    const responseType = originConfig.responseType || 'text'
+    const responseType = originConfig.responseType || 'text';
 
-    let responseData = await resolvers[
+    const responseData = await resolvers[
       utils.findKey(resolvers, responseType) || 'text'
-    ](response, originConfig)
+    ](response, originConfig);
 
-    stopTimeout && stopTimeout()
+    if (stopTimeout) {
+      stopTimeout();
+    }
 
     return await new Promise((resolve, reject) => {
       settle(resolve, reject, {
@@ -84,11 +94,11 @@ export async function nativeAdapter(
         status: response.status,
         statusText: response.statusText,
         originConfig,
-        request
-      })
-    })
+        request,
+      });
+    });
   } catch (err: any) {
-    onFinish()
+    onFinish();
 
     if (err && err.name === 'TypeError' && /fetch/i.test(err.message)) {
       throw Object.assign(
@@ -99,11 +109,11 @@ export async function nativeAdapter(
           request
         ),
         {
-          cause: err.cause || err
+          cause: err.cause || err,
         }
-      )
+      );
     }
 
-    throw AxiosError.from(err, err && err.code, originConfig as any, request)
+    throw AxiosError.from(err, err && err.code, originConfig as any, request);
   }
 }

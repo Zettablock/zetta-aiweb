@@ -1,31 +1,31 @@
-import { getHttpClient } from './client'
+import { getHttpClient } from './client';
 
-export * from './decorator'
-export * from './plugins'
+export * from './decorator';
+export * from './plugins';
 
 export const defaultPlguinsConfig = {
   TokenRequestPlugin: {
-    enable: true
+    enable: true,
   },
   ForwardRequestPlugin: {
-    enable: true
+    enable: true,
   },
   RiskRequestPlugin: {
-    enable: true
+    enable: true,
   },
   ErrorResponsePlugin: {
-    enable: true
+    enable: true,
   },
   FallbackResponsePlugin: {
-    enable: true
+    enable: true,
   },
   ValidateResponsePlugin: {
-    enable: true
-  }
-}
+    enable: true,
+  },
+};
 
 export const httpClient = getHttpClient(
   { withCredentials: true },
-  res => res.data.data,
+  (res) => res.data,
   defaultPlguinsConfig
-)
+);

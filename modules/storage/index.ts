@@ -1,4 +1,5 @@
 import localforage from 'localforage'
+import { useEffect, useState } from 'react'
 
 export const STORAGE_STRATEGY_KEY = '__storage_strategy_key__'
 
@@ -9,6 +10,7 @@ enum StorageStrategy {
 
 export const storageStrategyPromise = new Promise<
   Record<string, StorageStrategy>
+  // eslint-disable-next-line no-async-promise-executor
 >(async resolve => {
   const storageStrategy =
     await localforage.getItem<Record<string, StorageStrategy>>(
@@ -33,14 +35,16 @@ export async function updateStorageStrategy(
   }
 }
 
-export function getStorage(options: LocalForageOptions, namespace?: string) {
+export function getStorage(options: LocalForageOptions) {
   const storage = localforage.createInstance(options)
+  const namespace = options.name || 'default'
   if (namespace) {
-    const lruInstances = {} as Record<string, any>
+    // const lruInstances = {} as Record<string, any>;
 
     const storageProxy: LocalForageDbMethodsCore = {
       async clear(callback) {
-        return await storage.clear(callback)
+        const result = await storage.clear(callback)
+        return result
       },
       async getItem(_key, callback) {
         const key = `${namespace}${_key}`
@@ -55,7 +59,8 @@ export function getStorage(options: LocalForageOptions, namespace?: string) {
         //     lruInstances[key] =
         //   }
         // }
-        return await storage.getItem(key, callback)
+        const result = await storage.getItem(key, callback)
+        return result
       },
       async setItem<T>(
         _key: string,
@@ -68,38 +73,73 @@ export function getStorage(options: LocalForageOptions, namespace?: string) {
         }
         // TODO StorageStrategy
 
-        return await storage.setItem(key, value, callback)
+        const result = await storage.setItem(key, value, callback)
+        return result
       },
       async iterate(iteratorCallback, successCallback) {
-        return await storage.iterate(
+        const result = await storage.iterate(
           (value: any, _key: string, iterationNumber: number) => {
             const key = `${namespace}${_key}`
             return iteratorCallback(value, key, iterationNumber)
           },
           successCallback
         )
+        return result
       },
       async key(n, callback) {
-        return await storage.key(n, (err, _key) => {
+        const result = await storage.key(n, (err, _key) => {
           const key = `${namespace}${_key}`
           return callback && callback(err, key)
         })
+        return result
       },
       async keys(callback) {
-        return await storage.keys((err, _keys) => {
+        const result = await storage.keys((err, _keys) => {
           const keys = _keys.map(_key => `${namespace}${_key}`)
           return callback && callback(err, keys)
         })
+        return result
       },
       async length(callback) {
-        return await storage.length(callback)
+        const result = await storage.length(callback)
+        return result
       },
       async removeItem(_key, callback) {
         const key = `${namespace}${_key}`
-        return await storage.removeItem(key, callback)
+        const result = await storage.removeItem(key, callback)
+        return result
       }
     }
 
     return storageProxy
   }
+
+  return storage
+}
+
+export const storage = getStorage({
+  name: 'default'
+})
+
+export function useStorage(key: string, initialValue: any) {
+  const [state, setState] = useState(initialValue)
+
+  const handleChange = async (value: any) => {
+    await storage.setItem(key, value)
+    setState(value)
+  }
+
+  useEffect(() => {
+    if (state === initialValue) {
+      storage.getItem(key, (err, value) => {
+        if (!err) {
+          setState(value)
+        }
+      })
+    } else {
+      handleChange(initialValue)
+    }
+  }, [initialValue])
+
+  return [state, handleChange] as const
 }
