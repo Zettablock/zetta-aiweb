@@ -7,24 +7,17 @@ import { kv } from '@vercel/kv'
 import { auth } from '@/auth'
 import { type Chat } from '@/lib/types'
 
-/**
- * sortedSet: {
- *  `user:chat:${userId}`: [{score: now, member: `chat:${id}`}, ...]
- * }
- * hash: {
- *  `chat:${id}`: {
- *    id,
- *    userId,
- *    createdAt,
- *    path,
- *    messags
- *    sharePath
- *  }
- * }
- */
 export async function getChats(userId?: string | null) {
+  const session = await auth()
+
   if (!userId) {
     return []
+  }
+
+  if (userId !== session?.user?.id) {
+    return {
+      error: 'Unauthorized'
+    }
   }
 
   try {
@@ -46,6 +39,14 @@ export async function getChats(userId?: string | null) {
 }
 
 export async function getChat(id: string, userId: string) {
+  const session = await auth()
+
+  if (userId !== session?.user?.id) {
+    return {
+      error: 'Unauthorized'
+    }
+  }
+
   const chat = await kv.hgetall<Chat>(`chat:${id}`)
 
   if (!chat || (userId && chat.userId !== userId)) {
@@ -64,7 +65,7 @@ export async function removeChat({ id, path }: { id: string; path: string }) {
     }
   }
 
-  //Convert uid to string for consistent comparison with session.user.id
+  // Convert uid to string for consistent comparison with session.user.id
   const uid = String(await kv.hget(`chat:${id}`, 'userId'))
 
   if (uid !== session?.user?.id) {
