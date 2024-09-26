@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 /* eslint-disable max-classes-per-file */
 import { IsOptional, IsString, ValidateNested } from 'class-validator';
 import { ClassConstructor, Type } from 'class-transformer';
@@ -11,7 +10,6 @@ import {
 import { AxiosRequestConfig } from 'axios';
 
 export namespace authMeDTO {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
   export interface Req {}
 
   export class User {
@@ -77,13 +75,13 @@ export namespace authMeDTO {
     api_keys: ApiKey[] | null;
 
     @IsOptionalString()
-    git_token: string;
+    git_token?: string;
 
     @IsOptionalString()
-    wallet_address: string;
+    wallet_address?: string;
 
     @IsOptionalString()
-    avatar_url;
+    avatar_url?: string;
   }
 
   export class UserRes {
