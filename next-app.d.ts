@@ -1,6 +1,8 @@
 /// <reference types="localforage/typings/localforage.d.ts" />
 /// <reference types="@segment/analytics-next/dist/types/index.d.ts" />
 /// <reference types="rfdc/index.d.ts" />
+/// <reference types="@ai-sdk/openai/dist/index.d.ts" />
+/// <reference types="ai/rsc/dist/index.d.ts" />
 
 declare module 'debug' {
   export default function createDebug(type: string) {
